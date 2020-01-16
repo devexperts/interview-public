@@ -1,0 +1,45 @@
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath("org.springframework.boot:spring-boot-gradle-plugin:$springBootVersion")
+    }
+}
+
+apply plugin: 'java'
+apply plugin: 'idea'
+apply plugin: 'org.springframework.boot'
+apply plugin: 'io.spring.dependency-management'
+
+test {
+    useJUnitPlatform()
+}
+
+repositories {
+    mavenCentral()
+}
+
+bootJar {
+    mainClassName = 'com.devexperts.service.ApplicationRunner'
+}
+
+dependencies {
+    compile("org.springframework.boot:spring-boot-starter-web")
+    compile("org.springframework.boot:spring-boot-starter-actuator")
+
+    testCompile("org.springframework.boot:spring-boot-starter-test")
+    testCompile "org.mockito:mockito-core:2.23.0"
+    testCompile "org.assertj:assertj-core:3.11.1"
+
+    testImplementation(enforcedPlatform("org.junit:junit-bom:$junitVersion")) // JUnit 5 BOM
+    testCompile "org.junit.jupiter:junit-jupiter-api:$junitVersion"
+    testCompile  "org.junit.jupiter:junit-jupiter-engine:$junitVersion"
+    testRuntime  "org.junit.platform:junit-platform-engine:$junitPlatformVersion"
+    testRuntime  "org.junit.platform:junit-platform-commons:$junitPlatformVersion"
+
+    testRuntime "org.postgresql:postgresql:42.2.5"
+
+    testImplementation "org.testcontainers:junit-jupiter:$testContainersVersion"
+    testImplementation "org.testcontainers:postgresql:$testContainersVersion"
+}
