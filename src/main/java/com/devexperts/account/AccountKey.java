@@ -17,4 +17,28 @@ public class AccountKey {
     public static AccountKey valueOf(long accountId) {
         return new AccountKey(accountId);
     }
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + (int) (accountId ^ (accountId >>> 32));
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		AccountKey other = (AccountKey) obj;
+		if (accountId != other.accountId)
+			return false;
+		return true;
+	}
+    
+    
 }
