@@ -1,8 +1,8 @@
 package com.devexperts.service;
 
-import java.util.ArrayList;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import org.springframework.stereotype.Service;
@@ -32,6 +32,14 @@ public class AccountServiceImpl implements AccountService {
 
     @Override
     public void transfer(Account source, Account target, double amount) {
-        //do nothing for now
+        if(amount <= 0 && source.getBalance().doubleValue() < amount) {
+        	//throw exception
+        }
+        BigDecimal amountToTransfer =  new BigDecimal(amount);
+        source.setBalance(source.getBalance().subtract(amountToTransfer)
+        	.setScale(5, RoundingMode.HALF_EVEN));
+        target.setBalance(target.getBalance().add(amountToTransfer)
+        	.setScale(5, RoundingMode.HALF_EVEN));
+        
     }
 }
