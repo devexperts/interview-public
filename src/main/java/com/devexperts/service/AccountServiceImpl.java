@@ -5,12 +5,12 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicReference;
 
 import org.springframework.stereotype.Service;
 
 import com.devexperts.account.Account;
 import com.devexperts.account.AccountKey;
+import com.devexperts.service.exception.InsufficientAccountBalanceException;
 
 @Service
 public class AccountServiceImpl implements AccountService {
@@ -39,16 +39,11 @@ public class AccountServiceImpl implements AccountService {
 	
 	// we also need lock the objects to avoid concurrent updates
 	public synchronized void transfer(Account source, Account target, double amount) {
-		if (amount <= 0) {
-			// throw exception
-			throw new IllegalArgumentException("The amount to tranfer should be higher than zero");
-		}
-
 		synchronized (source) {
 			Double sourceBalance = source.getBalance();
 
 			if (sourceBalance.doubleValue() < amount) {
-				throw new IllegalThreadStateException("No liquidity is available for the given source account");
+				throw new InsufficientAccountBalanceException();
 			}
 
 			synchronized (target) {
