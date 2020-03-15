@@ -1,0 +1,1 @@
+select * from accounts where ID IN (SELECT id as sum FROM transfers GROUP BY SOURCE_ID HAVING '2019-01-01' <= TRANSFER_TIME AND sum(AMOUNT) >= 1000 );
