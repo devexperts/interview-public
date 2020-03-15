@@ -1,14 +1,13 @@
 package com.devexperts.account;
 
-import java.math.BigDecimal;
-
 public class Account {
+	
     private final AccountKey accountKey;
     private final String firstName;
     private final String lastName;
-    private BigDecimal balance;
+    private Double balance;
 
-    public Account(AccountKey accountKey, String firstName, String lastName, BigDecimal balance) {
+    public Account(AccountKey accountKey, String firstName, String lastName, Double balance) {
         this.accountKey = accountKey;
         this.firstName = firstName;
         this.lastName = lastName;
@@ -27,11 +26,12 @@ public class Account {
         return lastName;
     }
 
-    public BigDecimal getBalance() {
+    public Double getBalance() {
         return balance;
     }
 
-    public void setBalance(BigDecimal balance) {
+    //Only this method is not thread safe as all other fields are immutable
+    public void setBalance(Double balance) {
         this.balance = balance;
     }
 }

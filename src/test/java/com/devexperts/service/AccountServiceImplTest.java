@@ -31,7 +31,7 @@ public class AccountServiceImplTest {
 		//given two accounts in the service 
 		int accountId1 = 1;
 		AccountKey accountKey1 = AccountKey.valueOf(accountId1);
-		Account account = new Account(accountKey1, "Joao", "Machado", new BigDecimal(200000.00));
+		Account account = new Account(accountKey1, "Joao", "Machado", 200000.00);
 
 		accountService.createAccount(account);
 		
@@ -51,7 +51,7 @@ public class AccountServiceImplTest {
 		//given an accounts created in the service 
 		int accountId1 = 1;
 		AccountKey accountKey1 = AccountKey.valueOf(accountId1);
-		Account account = new Account(accountKey1, "Joao", "Machado", new BigDecimal(200000.00));
+		Account account = new Account(accountKey1, "Joao", "Machado", 200000.00);
 		
 		//when clear the account service 
 		accountService.createAccount(account);
@@ -73,11 +73,11 @@ public class AccountServiceImplTest {
 		//given two accounts in the service 
 		int accountId1 = 1;
 		AccountKey accountKey1 = AccountKey.valueOf(accountId1);
-		Account account = new Account(accountKey1, "Joao", "Machado", new BigDecimal(200000.00));
+		Account account = new Account(accountKey1, "Joao", "Machado", 200000.00);
 		
 		int accountId2 = 2;
 		AccountKey accountKey2 = AccountKey.valueOf(accountId2);
-		Account account2 = new Account(accountKey2, "Miguel", "Machado", new BigDecimal(200000.00));
+		Account account2 = new Account(accountKey2, "Miguel", "Machado", 200000.00);
 		
 		accountService.createAccount(account);
 		accountService.createAccount(account2);
@@ -106,11 +106,11 @@ public class AccountServiceImplTest {
 		//given two accounts in the service 
 		int accountId1 = 1;
 		AccountKey accountKey1 = AccountKey.valueOf(accountId1);
-		Account account = new Account(accountKey1, "Joao", "Machado", new BigDecimal(200000.00));
+		Account account = new Account(accountKey1, "Joao", "Machado", 200000.00);
 		
 		int accountId2 = 2;
 		AccountKey accountKey2 = AccountKey.valueOf(accountId2);
-		Account account2 = new Account(accountKey2, "Miguel", "Machado", new BigDecimal(200000.00));
+		Account account2 = new Account(accountKey2, "Miguel", "Machado", 200000.00);
 		
 		accountService.createAccount(account);
 		accountService.createAccount(account2);
@@ -122,11 +122,11 @@ public class AccountServiceImplTest {
 		//then any accounts should exist
 		then(account.getBalance())
 			.as("Account Balence should be 0.00000")
-			.isEqualTo(new BigDecimal(0.00000).setScale(5, RoundingMode.HALF_EVEN));
+			.isEqualTo(0.0);
 		
 		then(account2.getBalance())
 			.as("Account Balence should be 400000.00000")
-			.isEqualTo(new BigDecimal(400000.00000).setScale(5, RoundingMode.HALF_EVEN));
+			.isEqualTo(400000.0);
 		
 	}
 }
