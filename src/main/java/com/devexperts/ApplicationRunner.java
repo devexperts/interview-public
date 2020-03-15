@@ -27,7 +27,6 @@ public class ApplicationRunner {
 	@Profile("dev")
 	public CommandLineRunner setUpAccounts(AccountServiceImpl accountService) {
 		return (args) -> {
-			System.out.println("Demo");
 
 			int accountId1 = 1;
 			AccountKey accountKey1 = AccountKey.valueOf(accountId1);
@@ -40,8 +39,6 @@ public class ApplicationRunner {
 			accountService.createAccount(account);
 			accountService.createAccount(account2);
 			
-			System.out.println();
-
 		};
 	}
 	

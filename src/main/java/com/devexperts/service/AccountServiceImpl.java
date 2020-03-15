@@ -34,7 +34,7 @@ public class AccountServiceImpl implements AccountService {
 	}
 
 	@Override
-	// since we can't change operations definitions, the method is synchronized to avoid deal lock
+	// since we can't change operations definitions, the method is synchronized to avoid Deadlock
 	// transfer (A, B) and  transfer (B, A)
 	
 	// we also need lock the objects to avoid concurrent updates
