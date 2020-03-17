@@ -2,8 +2,13 @@ package com.devexperts.rest;
 
 import java.util.Objects;
 
+import javax.validation.ConstraintViolationException;
+import javax.validation.constraints.Min;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -16,6 +21,7 @@ import com.devexperts.service.exception.UserAccountNotFoundException;
 
 @RestController
 @RequestMapping("/api")
+@Validated
 public class AccountController extends AbstractAccountController {
 
 	private AccountService accountService;
@@ -24,6 +30,12 @@ public class AccountController extends AbstractAccountController {
 		this.accountService = accountService;
 	}
 
+    @ExceptionHandler
+    public String constraintViolationHandler(ConstraintViolationException ex) {
+        return ex.getConstraintViolations().iterator().next()
+                .getMessage();
+    }
+    
 	@PostMapping(path = "/operations/transfer")
 	public ResponseEntity<Void> transfer(@RequestParam long sourceId, @RequestParam long targetId, double amount) {
 
@@ -31,6 +43,7 @@ public class AccountController extends AbstractAccountController {
 		
 		Account source = accountService.getAccount(sourceId);
 		Account target = accountService.getAccount(targetId);
+
 		verifyAccount(source);
 		verifyAccount(target);
 
@@ -39,7 +52,7 @@ public class AccountController extends AbstractAccountController {
 	}
 
 	private void verifyParameters(long sourceId, long targetId, double amount) {
-		if(sourceId <= 0 || targetId <= 0 || amount<=0 ) {
+		if(sourceId <= 0 || targetId <= 0 || amount<=0 && (sourceId != targetId) ) {
 			throw new HttpParametersException();
 		}
 		
