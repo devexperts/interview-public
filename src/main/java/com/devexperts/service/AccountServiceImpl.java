@@ -1,7 +1,6 @@
 package com.devexperts.service;
 
 import com.devexperts.account.Account;
-import com.devexperts.account.AccountKey;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -24,14 +23,38 @@ public class AccountServiceImpl implements AccountService {
 
     @Override
     public Account getAccount(long id) {
+
+        //old
+//        return accounts.stream()
+//                .filter(account -> account.getAccountKey() == AccountKey.valueOf(id))
+//                .findAny()
+//                .orElse(null);
+        //new
+        //AccountKey.valueOf was returning new instance of AccountKey to compare to and using == comparator
         return accounts.stream()
-                .filter(account -> account.getAccountKey() == AccountKey.valueOf(id))
+                .filter(account -> account.getAccountKey().getAccountId() == id)
                 .findAny()
                 .orElse(null);
     }
 
     @Override
+    public void transfer(long sourceId, long targetId, double amount) {
+
+        Account source = getAccount(sourceId);
+        Account target = getAccount(targetId);
+        transfer(source, target, amount);
+    }
+
+    @Override
     public void transfer(Account source, Account target, double amount) {
-        //do nothing for now
+
+        if (source == null || target == null) {
+            throw new IllegalArgumentException();
+        }
+        if (source.getBalance() < amount) {
+            throw new InternalError();
+        }
+        source.withdraw(amount);
+        target.deposit(amount);
     }
 }

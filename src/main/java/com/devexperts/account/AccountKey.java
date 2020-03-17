@@ -1,5 +1,7 @@
 package com.devexperts.account;
 
+import java.util.Objects;
+
 /**
  * Unique Account identifier
  *
@@ -14,7 +16,11 @@ public class AccountKey {
         this.accountId = accountId;
     }
 
-    public static AccountKey valueOf(long accountId) {
-        return new AccountKey(accountId);
+//    public static AccountKey valueOf(long accountId) {
+//        return new AccountKey(accountId);
+//    }
+    
+    public long getAccountId() {
+        return accountId;
     }
 }
