@@ -2,7 +2,7 @@ create table ACCOUNTS_TABLE (
     account_id number not null,
     account_key number not null,
     first_name varchar2(20) not null,
-    first_name varchar2(20) not null,
+    last_name varchar2(20) not null,
     balance number default 0 not null 
 );
 
