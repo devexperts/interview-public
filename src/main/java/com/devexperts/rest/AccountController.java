@@ -30,14 +30,9 @@ public class AccountController extends AbstractAccountController {
 		this.accountService = accountService;
 	}
 
-    @ExceptionHandler
-    public String constraintViolationHandler(ConstraintViolationException ex) {
-        return ex.getConstraintViolations().iterator().next()
-                .getMessage();
-    }
     
 	@PostMapping(path = "/operations/transfer")
-	public ResponseEntity<Void> transfer(@RequestParam long sourceId, @RequestParam long targetId, double amount) {
+	public ResponseEntity<Void> transfer(Long sourceId, Long targetId, Double amount) {
 
 		verifyParameters(sourceId, targetId, amount);
 		
@@ -51,8 +46,9 @@ public class AccountController extends AbstractAccountController {
 		return new ResponseEntity<Void>(HttpStatus.OK);
 	}
 
-	private void verifyParameters(long sourceId, long targetId, double amount) {
-		if(sourceId <= 0 || targetId <= 0 || amount<=0 && (sourceId != targetId) ) {
+	private void verifyParameters(Long sourceId, Long targetId, Double amount) {
+		if(Objects.isNull(sourceId) || Objects.isNull(targetId) || Objects.isNull(amount) || 
+				sourceId <= 0 || targetId <= 0 || amount<=0  || sourceId != targetId) {
 			throw new HttpParametersException();
 		}
 		
