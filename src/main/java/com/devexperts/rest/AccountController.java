@@ -21,7 +21,6 @@ import com.devexperts.service.exception.UserAccountNotFoundException;
 
 @RestController
 @RequestMapping("/api")
-@Validated
 public class AccountController extends AbstractAccountController {
 
 	private AccountService accountService;
@@ -48,7 +47,7 @@ public class AccountController extends AbstractAccountController {
 
 	private void verifyParameters(Long sourceId, Long targetId, Double amount) {
 		if(Objects.isNull(sourceId) || Objects.isNull(targetId) || Objects.isNull(amount) || 
-				sourceId <= 0 || targetId <= 0 || amount<=0  || sourceId != targetId) {
+				sourceId <= 0 || targetId <= 0 || amount<=0  || sourceId == targetId) {
 			throw new HttpParametersException();
 		}
 		

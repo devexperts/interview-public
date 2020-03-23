@@ -3,8 +3,10 @@ package com.devexperts.service;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+
+import javax.annotation.PreDestroy;
 
 import org.springframework.stereotype.Service;
 
@@ -15,7 +17,7 @@ import com.devexperts.service.exception.InsufficientAccountBalanceException;
 @Service
 public class AccountServiceImpl implements AccountService {
 
-	private final Map<AccountKey, Account> accountsPer = new HashMap<AccountKey, Account>();
+	private final Map<AccountKey, Account> accountsPer = new ConcurrentHashMap<AccountKey, Account>();
 
 	@Override
 	public void clear() {
@@ -35,7 +37,7 @@ public class AccountServiceImpl implements AccountService {
 
 	@Override
 	// since we can't change operations definitions, the method is synchronized to avoid Deadlock
-	// transfer (A, B) and  transfer (B, A)
+	// transfer (A, B) and transfer (B, A) simultaneously (Why not !!!) 
 	
 	// we also need lock the objects to avoid concurrent updates
 	public synchronized void transfer(Account source, Account target, double amount) {
