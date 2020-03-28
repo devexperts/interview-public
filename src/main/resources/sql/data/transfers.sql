@@ -1,0 +1,10 @@
+create table transfers
+(
+    ID         LONG AUTO_INCREMENT Primary Key,
+    SOURCE_ID long NOT NULL,
+    TARGET_ID  long NOT NULL,
+    AMOUNT    DOUBLE NOT NULL,
+    TRANSFER_TIME DATE NOT NULL,
+    FOREIGN KEY (SOURCE_ID) REFERENCES accounts(ID),
+    FOREIGN KEY (TARGET_ID) REFERENCES accounts(ID)
+);
