@@ -19,20 +19,26 @@ public class AccountServiceImpl implements AccountService {
 
     @Override
     public void createAccount(Account account) {
-        accounts.put(account.getAccountKey(), account);
+        synchronized (accounts) {
+            accounts.put(account.getAccountKey(), account);
+        }
     }
 
     @Override
     public Account getAccount(long id) {
-        return accounts.getOrDefault(AccountKey.valueOf(id), null);
+        synchronized (accounts) {
+            return accounts.getOrDefault(AccountKey.valueOf(id), null);
+        }
     }
 
     @Override
     public void transfer(Account source, Account target, double amount) {
-        if (source.getBalance() - amount < 0) {
-            throw new RuntimeException("Not enough money in source account");
+        synchronized (accounts) {
+            if (source.getBalance() - amount < 0) {
+                throw new RuntimeException("Not enough money in source account");
+            }
+            source.setBalance(source.getBalance() - amount);
+            target.setBalance(target.getBalance() + amount);
         }
-        source.setBalance(source.getBalance() - amount);
-        target.setBalance(target.getBalance() + amount);
     }
 }

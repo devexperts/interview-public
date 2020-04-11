@@ -5,9 +5,17 @@ import com.devexperts.account.AccountKey
 import com.devexperts.service.AccountServiceImpl
 import spock.lang.Specification
 
+import java.util.concurrent.ExecutorService
+import java.util.concurrent.Executors
+import java.util.concurrent.TimeUnit
+
 class AccountServiceSpec extends Specification {
 
     def service = new AccountServiceImpl()
+
+    def cleanup() {
+        service.clear()
+    }
 
     def 'Creating accounts'() {
         given: 'two new accounts'
@@ -66,5 +74,41 @@ class AccountServiceSpec extends Specification {
         then: 'the transfer is successful'
         source.getBalance() == Double.valueOf('100')
         target.getBalance() == Double.valueOf('100')
+    }
+
+    def 'Transferring money in parallel'() {
+        given: 'a source account'
+        def source = new Account(
+                AccountKey.valueOf(1L),
+                'Boris',
+                'Borisov',
+                Double.valueOf('200')
+        )
+
+        and: 'a target account'
+        def target = new Account(
+                AccountKey.valueOf(2L),
+                'Bill',
+                'Gates'
+        )
+
+        and:
+        def executionTimes = 3
+
+        when:
+        for (int i = 0; i < executionTimes; ++i) {
+            ExecutorService executorService = Executors.newFixedThreadPool(10)
+            for (int j = 0; j < 10; ++j) {
+                executorService.execute(() -> {
+                    service.transfer(source, target, Double.valueOf('1'))
+                })
+            }
+            executorService.shutdown()
+            executorService.awaitTermination(5, TimeUnit.SECONDS)
+        }
+
+        then: 'the correct amount of money is being transferred'
+        source.getBalance() == Double.valueOf('170')
+        target.getBalance() == Double.valueOf('30')
     }
 }
