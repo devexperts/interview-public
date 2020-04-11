@@ -1,18 +1,24 @@
 package service
 
+import com.devexperts.account.Account
+import com.devexperts.account.AccountKey
+import com.devexperts.service.AccountServiceImpl
 import spock.lang.Specification
 
 class AccountServiceSpec extends Specification {
 
-    def 'Test should work'() {
-        given:
-        def a = 3
-        def b = 4
+    def service = new AccountServiceImpl()
 
-        when:
-        def result = a + b
+    def 'Creating accounts'() {
+        given: 'two new accounts'
+        def a1 = new Account(AccountKey.valueOf(1L), 'Boris', 'Borisov')
+        def a2 = new Account(AccountKey.valueOf(2L), 'Bill', 'Gates')
 
-        then:
-        result == 7
+        when: 'a request to create those accounts is made'
+        [a1, a2].each { service.createAccount(it) }
+
+        then: 'the accounts are created successfully'
+        service.getAccount(1L) != null
+        service.getAccount(2L) != null
     }
 }
