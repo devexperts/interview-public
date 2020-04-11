@@ -29,6 +29,10 @@ public class AccountServiceImpl implements AccountService {
 
     @Override
     public void transfer(Account source, Account target, double amount) {
-        //do nothing for now
+        if (source.getBalance() - amount < 0) {
+            throw new RuntimeException("Not enough money in source account");
+        }
+        source.setBalance(source.getBalance() - amount);
+        target.setBalance(target.getBalance() + amount);
     }
 }
