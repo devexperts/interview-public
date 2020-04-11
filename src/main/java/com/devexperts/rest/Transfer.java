@@ -1,9 +1,12 @@
 package com.devexperts.rest;
 
 import javax.validation.constraints.Min;
+import javax.validation.constraints.NotNull;
 
 public class Transfer {
+    @NotNull
     private final long sourceId;
+    @NotNull
     private final long targetId;
     @Min(value = 1)
     private final double amount;
