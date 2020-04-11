@@ -29,6 +29,7 @@ bootJar {
 dependencies {
     compile("org.springframework.boot:spring-boot-starter-web")
     compile("org.springframework.boot:spring-boot-starter-actuator")
+    compile("org.springframework.boot:spring-boot-starter-data-jpa")
 
     testCompile("org.springframework.boot:spring-boot-starter-test") {
         exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
@@ -48,8 +49,9 @@ dependencies {
     // testRuntime "org.junit.platform:junit-platform-engine:$junitPlatformVersion"
     // testRuntime "org.junit.platform:junit-platform-commons:$junitPlatformVersion"
 
-    testRuntime "org.postgresql:postgresql:42.2.5"
+    // testRuntime "org.postgresql:postgresql:42.2.5"
+    runtimeOnly("com.h2database:h2:$h2Version")
 
     // testImplementation "org.testcontainers:junit-jupiter:$testContainersVersion"
-    testImplementation "org.testcontainers:postgresql:$testContainersVersion"
+    // testImplementation "org.testcontainers:postgresql:$testContainersVersion"
 }
