@@ -2,6 +2,8 @@ package com.devexperts.service;
 
 import com.devexperts.account.Account;
 import com.devexperts.account.AccountKey;
+import com.devexperts.exception.AccountNotFountException;
+import com.devexperts.exception.InsufficientAccountBalanceException;
 import org.springframework.stereotype.Service;
 
 import java.util.Map;
@@ -32,10 +34,18 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
-    public void transfer(Account source, Account target, double amount) {
+    public void transfer(Long sourceAccountId, Long targetAccountId, double amount) {
         synchronized (accounts) {
+            Account source = accounts.get(AccountKey.valueOf(sourceAccountId));
+            if (source == null) {
+                throw new AccountNotFountException("Source account with id " + sourceAccountId + "does not exist");
+            }
+            Account target = accounts.get(AccountKey.valueOf(targetAccountId));
+            if (target == null) {
+                throw new AccountNotFountException("Target account with id " + targetAccountId + "does not exist");
+            }
             if (source.getBalance() - amount < 0) {
-                throw new RuntimeException("Not enough money in source account");
+                throw new InsufficientAccountBalanceException("Not enough money in source account with id" + sourceAccountId);
             }
             source.setBalance(source.getBalance() - amount);
             target.setBalance(target.getBalance() + amount);
