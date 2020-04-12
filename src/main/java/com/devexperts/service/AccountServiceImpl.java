@@ -1,14 +1,21 @@
 package com.devexperts.service;
 
 import com.devexperts.account.Account;
-import com.devexperts.exception.TransferException;
+import com.devexperts.exception.AccountNotFoundException;
+import com.devexperts.exception.InsufficientAccountBalanceException;
+import com.devexperts.exception.InvalidBalanceException;
+import com.devexperts.exception.InvalidTransferAccountException;
 import lombok.Getter;
 import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Service;
 
-import java.util.*;
+import javax.validation.constraints.DecimalMin;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
 
 // Code review comment: add Javadoc for description of the implementation.
+
 /**
  * Basic implementation for {@link AccountService} methods.
  */
@@ -20,15 +27,22 @@ public class AccountServiceImpl implements AccountService {
     @Getter
     private final Map<Long, Account> accounts = new HashMap<>();
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void clear() {
         getAccounts().clear();
     }
 
     // Code review comment: assert account is non-null object.
+
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void createAccount(@NonNull Account account) {
-        accounts.put(account.getAccountId(), account);
+        getAccounts().put(account.getAccountId(), account);
     }
 
     // Code review comment:
@@ -39,10 +53,13 @@ public class AccountServiceImpl implements AccountService {
     // 3. Performance of this method could be optimized by refactoring Account to not use the AccountKey class (which
     // could be deleted) but instead directly have accountId (type long) field inside and instead using List, using map
     // with key the accountId itself.
+
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public Account getAccount(long id) {
-        return Optional.ofNullable(accounts.get(id))
-                .orElseThrow(() -> new NoSuchElementException("Account not found!"));
+        return getAccountIfFound(id).orElseThrow(() -> new AccountNotFoundException("Account not found!"));
     }
 
     /**
@@ -51,15 +68,13 @@ public class AccountServiceImpl implements AccountService {
      * {@code getAccount(target)} throws exception, or accounts are the same {@code source.equals(target)}.
      */
     @Override
-    public void transfer(Account source, Account target, double amount) {
+    public void transfer(Account source, Account target, @DecimalMin(value = "0", inclusive = false) double amount) {
         // Validate the accounts are available.
-        getAccount(source.getAccountId());
-        getAccount(target.getAccountId());
+        validateAccountExistForId(source.getAccountId());
+        validateAccountExistForId(target.getAccountId());
 
         // Validate not the same source and target.
-        if (source.equals(target)) {
-            throw new TransferException("Can't invoke transfer to the same account!");
-        }
+        validateTransferSourceAndTarget(source, target);
 
         // Lock the objects. Correct order of the locks should be assured for avoiding deadlock.
         final Account lock1 =
@@ -68,12 +83,43 @@ public class AccountServiceImpl implements AccountService {
                 source.getAccountId() < target.getAccountId() ? target : source;
 
         // Calculate new balance.
-        // Note: I assumed negative balances are possible (credit).
         synchronized (lock1) {
             synchronized (lock2) {
-                source.setBalance(source.getBalance() - amount);
-                target.setBalance(source.getBalance() + amount);
+                withdraw(source, amount);
+                deposit(target, amount);
             }
+        }
+    }
+
+    private Optional<Account> getAccountIfFound(long id) {
+        return Optional.ofNullable(getAccounts().get(id));
+    }
+
+    private void validateTransferSourceAndTarget(Account source, Account target) {
+        if (source.equals(target)) {
+            throw new InvalidTransferAccountException("Can't invoke transfer to the same account!");
+        }
+    }
+
+    private void validateAccountExistForId(long id) {
+        getAccount(id);
+    }
+
+    private void withdraw(Account account, double amount) {
+        double calculatedBalance = account.getBalance() - amount;
+        if (calculatedBalance > 0) {
+            account.setBalance(calculatedBalance);
+        } else {
+            throw new InsufficientAccountBalanceException("Account doesn't have enough funds for withdraw.");
+        }
+    }
+
+    private void deposit(Account account, double amount) {
+        double calculatedBalance = account.getBalance() + amount;
+        if (calculatedBalance > 0) {
+            account.setBalance(calculatedBalance);
+        } else {
+            throw new InvalidBalanceException("Deposit failed. Invalid balance after deposit.");
         }
     }
 }
