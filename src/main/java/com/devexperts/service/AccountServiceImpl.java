@@ -1,33 +1,47 @@
 package com.devexperts.service;
 
 import com.devexperts.account.Account;
-import com.devexperts.account.AccountKey;
+import lombok.Getter;
+import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
+// Code review comment: add Javadoc for description of the implementation.
+/**
+ * Basic implementation for {@link AccountService} methods.
+ */
 @Service
 public class AccountServiceImpl implements AccountService {
 
-    private final List<Account> accounts = new ArrayList<>();
+    // Code review comment: access accounts through getter for further extensibility of this class.
+    // Example - in a child class of this, get accounts could be changed to different kind of collections.
+    @Getter
+    private final Map<Long, Account> accounts = new HashMap<>();
 
     @Override
     public void clear() {
-        accounts.clear();
+        getAccounts().clear();
     }
 
+    // Code review comment: assert account is non-null object.
     @Override
-    public void createAccount(Account account) {
-        accounts.add(account);
+    public void createAccount(@NonNull Account account) {
+        accounts.put(account.getAccountId(), account);
     }
 
+    // Code review comment:
+    // 1. Compare account key objects with appropriate equality method.
+    // 2. Returning null should be avoided. Consider changing AccountService interface method getAccount to return
+    // Optional<Account> instead. Since changing interface is not part of the task consider throwing
+    // NoSuchElementException with appropriate error message.
+    // 3. Performance of this method could be optimized by refactoring Account to not use the AccountKey class (which
+    // could be deleted) but instead directly have accountId (type long) field inside and instead using List, using map
+    // with key the accountId itself.
     @Override
     public Account getAccount(long id) {
-        return accounts.stream()
-                .filter(account -> account.getAccountKey() == AccountKey.valueOf(id))
-                .findAny()
-                .orElse(null);
+        return Optional.ofNullable(accounts.get(id))
+                .orElseThrow(() -> new NoSuchElementException("Account not found!"));
     }
 
     @Override

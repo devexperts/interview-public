@@ -95,6 +95,13 @@
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
         </dependency>
+        <!--Lombok -->
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <version>1.18.12</version>
+            <scope>provided</scope>
+        </dependency>
     </dependencies>
 
     <build>
@@ -104,8 +111,8 @@
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>${maven-compiler-plugin.version}</version>
                 <configuration>
-                    <target>${java.version}</target>
-                    <source>${java.version}</source>
+                    <target>10</target>
+                    <source>10</source>
                     <fork>true</fork>
                     <encoding>UTF8</encoding>
                     <useIncrementalCompilation>false</useIncrementalCompilation>
