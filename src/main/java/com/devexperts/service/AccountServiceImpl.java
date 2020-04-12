@@ -61,9 +61,19 @@ public class AccountServiceImpl implements AccountService {
             throw new TransferException("Can't invoke transfer to the same account!");
         }
 
+        // Lock the objects. Correct order of the locks should be assured for avoiding deadlock.
+        final Account lock1 =
+                source.getAccountId() < target.getAccountId() ? source : target;
+        final Account lock2 =
+                source.getAccountId() < target.getAccountId() ? target : source;
+
         // Calculate new balance.
         // Note: I assumed negative balances are possible (credit).
-        source.setBalance(source.getBalance() - amount);
-        target.setBalance(target.getBalance() + amount);
+        synchronized (lock1) {
+            synchronized (lock2) {
+                source.setBalance(source.getBalance() - amount);
+                target.setBalance(source.getBalance() + amount);
+            }
+        }
     }
 }
