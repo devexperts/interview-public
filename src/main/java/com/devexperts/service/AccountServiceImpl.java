@@ -1,6 +1,7 @@
 package com.devexperts.service;
 
 import com.devexperts.account.Account;
+import com.devexperts.exception.TransferException;
 import lombok.Getter;
 import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Service;
@@ -44,8 +45,25 @@ public class AccountServiceImpl implements AccountService {
                 .orElseThrow(() -> new NoSuchElementException("Account not found!"));
     }
 
+    /**
+     * {@inheritDoc}
+     * Exception could occur if accounts are not registered in service {@code getAccount(source)} or
+     * {@code getAccount(target)} throws exception, or accounts are the same {@code source.equals(target)}.
+     */
     @Override
     public void transfer(Account source, Account target, double amount) {
-        //do nothing for now
+        // Validate the accounts are available.
+        getAccount(source.getAccountId());
+        getAccount(target.getAccountId());
+
+        // Validate not the same source and target.
+        if (source.equals(target)) {
+            throw new TransferException("Can't invoke transfer to the same account!");
+        }
+
+        // Calculate new balance.
+        // Note: I assumed negative balances are possible (credit).
+        source.setBalance(source.getBalance() - amount);
+        target.setBalance(target.getBalance() + amount);
     }
 }
