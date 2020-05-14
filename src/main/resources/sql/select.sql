@@ -1,0 +1,1 @@
+SELECT * FROM accounts WHERE id IN (SELECT source_id FROM transfers WHERE transfer_time > TIMESTAMP '2019-01-11 00:00:00' GROUP BY source_id HAVING SUM(AMOUNT) > 1000);
