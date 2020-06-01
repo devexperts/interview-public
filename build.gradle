@@ -43,4 +43,6 @@ dependencies {
 
     testImplementation "org.testcontainers:junit-jupiter:$testContainersVersion"
     testImplementation "org.testcontainers:postgresql:$testContainersVersion"
+
+    // Нужно разнести интеграционные и юнит тесты по разным таскам
 }
