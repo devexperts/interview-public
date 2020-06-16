@@ -6,11 +6,14 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 @Service
 public class AccountServiceImpl implements AccountService {
 
-    private final List<Account> accounts = new ArrayList<>();
+    private final Map<AccountKey,Account> accounts = new ConcurrentHashMap<>();
 
     @Override
     public void clear() {
@@ -19,15 +22,12 @@ public class AccountServiceImpl implements AccountService {
 
     @Override
     public void createAccount(Account account) {
-        accounts.add(account);
+        accounts.put(account.getAccountKey(), account);
     }
 
     @Override
     public Account getAccount(long id) {
-        return accounts.stream()
-                .filter(account -> account.getAccountKey() == AccountKey.valueOf(id))
-                .findAny()
-                .orElse(null);
+        return accounts.get(AccountKey.valueOf(id));
     }
 
     @Override
