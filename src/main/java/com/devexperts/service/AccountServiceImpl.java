@@ -33,7 +33,8 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
-    public void transfer(Account source, Account target, double amount) {
+    public synchronized void transfer(Account source, Account target, double amount) {
+        //I could introduce narrower synchronization there, but not with mutable Account
         BigDecimal bDAmount = BigDecimal.valueOf(amount);
         double newSourceBalance =
                 BigDecimal.valueOf(source.getBalance()).subtract(bDAmount).doubleValue();
