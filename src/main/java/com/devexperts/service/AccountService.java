@@ -34,4 +34,13 @@ public interface AccountService {
      * @param amount dollar amount to transfer
      * */
     void transfer(Account source, Account target, double amount);
+
+    /**
+     * Transfers given amount of money from source account to target account by given ids
+     *
+     * @param sourceId account_id to transfer money from
+     * @param targetId account_id to transfer money to
+     * @param amount dollar amount to transfer
+     * */
+    void transfer(long sourceId, long targetId, double amount);
 }

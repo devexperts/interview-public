@@ -28,6 +28,9 @@ bootJar {
 dependencies {
     compile("org.springframework.boot:spring-boot-starter-web")
     compile("org.springframework.boot:spring-boot-starter-actuator")
+    compile('io.springfox:springfox-swagger2:2.9.2')
+    compile('io.springfox:springfox-swagger-ui:2.9.2')
+    compile('javax.persistence:javax.persistence-api:2.2')
 
     testCompile("org.springframework.boot:spring-boot-starter-test")
     testCompile "org.mockito:mockito-core:2.23.0"

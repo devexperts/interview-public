@@ -90,3 +90,12 @@ should be added:
 **Goal:** Provide SQL to create both tables (`resources/sql/data/accounts.sql`) and (`resources/sql/data/transfers.sql`)
 and sql query (`resources/sql/select.sql`) that finds all accounts
  that in total transferred more than 1000$ to other people starting from 2019-01-01 
+ 
+## Solution 
+
+Exposed REST API is accessible through Swagger API. On your local environment you can access it [on the following URL](http://localhost:8080/swagger-ui.html#/operations-controller/transferUsingPOST)
+
+### Technical notes
+
+- additional `insert-data.sql` script is provided which creates a few accounts into the database
+- For the sake of the future integration between the Java POJOs and Database a JPA mapping is provided for `Account` and `AccountKey` entities
