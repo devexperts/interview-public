@@ -1,5 +1,7 @@
 package com.devexperts.account;
 
+import java.util.Objects;
+
 /**
  * Unique Account identifier
  *
@@ -10,11 +12,24 @@ package com.devexperts.account;
 public class AccountKey {
     private final long accountId;
 
-    private AccountKey(long accountId) {
+    public AccountKey(long accountId) {
         this.accountId = accountId;
     }
 
     public static AccountKey valueOf(long accountId) {
         return new AccountKey(accountId);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        AccountKey that = (AccountKey) o;
+        return accountId == that.accountId;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(accountId);
     }
 }

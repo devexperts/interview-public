@@ -12,7 +12,7 @@ public class ApplicationRunner {
             SpringApplication.run(ApplicationRunner.class, args);
     }
 
-    @Bean
+    @Bean(initMethod="init")
     AccountService accountService() {
         return new AccountServiceImpl();
     }
