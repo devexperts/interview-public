@@ -12,7 +12,7 @@ import java.util.Objects;
 public class AccountKey {
     private final long accountId;
 
-    private AccountKey(long accountId) {
+    public AccountKey(long accountId) {
         this.accountId = accountId;
     }
 
