@@ -1,9 +1,18 @@
 package com.devexperts.account;
 
+import javax.persistence.Column;
+import javax.persistence.Embedded;
+import javax.persistence.Entity;
+
+@Entity
 public class Account {
+    @Embedded
     private final AccountKey accountKey;
+    @Column(name = "FIRST_NAME")
     private final String firstName;
+    @Column(name = "LAST_NAME")
     private final String lastName;
+    @Column(name = "BALANCE")
     private Double balance;
 
     public Account(AccountKey accountKey, String firstName, String lastName, Double balance) {
