@@ -2,6 +2,7 @@ package com.devexperts.service;
 
 import com.devexperts.account.Account;
 import com.devexperts.account.AccountKey;
+import com.devexperts.service.exceptions.AccountsTransferAmountException;
 import com.devexperts.service.exceptions.GetAccountException;
 import com.devexperts.service.exceptions.RecreateAccountException;
 import lombok.AccessLevel;
@@ -25,7 +26,7 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
-    public void createAccount(Account account) {
+    public void createAccount(Account account) throws RecreateAccountException {
         if (account == null) {
             if (log.isDebugEnabled()) { //performance +
                 log.debug("null as parameter for createAccount method is not allowed");
@@ -45,7 +46,7 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
-    public Account getAccount(long id) {
+    public Account getAccount(long id) throws GetAccountException {
         Account account = accounts.get(AccountKey.valueOf(id));
         if (account == null) {
             if (log.isWarnEnabled()) { //performance +
@@ -57,7 +58,76 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
-    public void transfer(Account source, Account target, double amount) {
-        //do nothing for now
+    public void transfer(Account source, Account target, double amount) throws AccountsTransferAmountException {
+        lockAccountBalance(source);
+        lockAccountBalance(target);
+        //after accounts locked we can do transfer
+        try {
+            doUnsafeTransferWithRollback(source, target, amount);
+        } catch (Exception e) {
+            unLockAccountBalance(source);
+            lockAccountBalance(target);
+            throw e;
+        }
+        unLockAccountBalance(source);
+        lockAccountBalance(target);
+    }
+
+    private void doUnsafeTransferWithRollback(Account source, Account target, double amount) throws AccountsTransferAmountException {
+        //save previous balance for simple rollback
+        double sourceBalance = source.getBalance();
+        double targetBalance = target.getBalance();
+        try {
+            if (source.getBalance() > amount) {
+                source.setBalance(sourceBalance - amount);
+                target.setBalance(targetBalance + amount);
+                if (log.isInfoEnabled()) { //performance +
+                    log.info("transfer successfully for accounts with key={} and key={}, amount={} ", source.getAccountKey(), target.getAccountKey(), amount);
+                }
+            } else {
+                if (log.isWarnEnabled()) { //performance +
+                    log.warn("transfer fail, not enough money in source account, accounts with key={} and key={}, amount={} ", source.getAccountKey(), target.getAccountKey(), amount);
+                }
+            }
+        } catch (Exception e1) {
+            if (log.isErrorEnabled()) { //performance +
+                log.error("transfer fail, need rollback, accounts with key={} and key={}, amount={} exception={}", source.getAccountKey(), target.getAccountKey(), amount, e1);
+            }
+            rollback(source, target, amount, sourceBalance, targetBalance);
+            if (log.isErrorEnabled()) { //performance +
+                log.error("rollback complete good, accounts with key={} and key={}, amount={} exception={}", source.getAccountKey(), target.getAccountKey(), amount, e1);
+            }
+            throw new AccountsTransferAmountException("transfer fail, but rollback complete good");
+        }
+    }
+
+    private void rollback(Account source, Account target, double amount, double sourceBalance, double targetBalance) throws AccountsTransferAmountException {
+        try { //rollback
+            source.setBalance(sourceBalance);
+            target.setBalance(targetBalance);
+        } catch (Exception e2) {
+            if (log.isErrorEnabled()) { //performance +
+                log.error("rollback fail, CALL TO DOCTOR, accounts with key={} and key={}, amount={} exception={}", source.getAccountKey(), target.getAccountKey(), amount, e2);
+                throw new AccountsTransferAmountException("rollback fail, CALL TO DOCTOR");
+            }
+        }
+    }
+
+    private void lockAccountBalance(Account source) throws AccountsTransferAmountException {
+        if (!source.lockBalance()) {
+            if (log.isErrorEnabled()) { //performance +
+                log.error("concurrent balance modification error with account {} ", source.getAccountKey());
+                throw new AccountsTransferAmountException("concurrent balance modification error with account" + source.getAccountKey());
+            }
+        }
+    }
+
+    private void unLockAccountBalance(Account acc) throws AccountsTransferAmountException {
+        if (!acc.unLockBalance()) {
+            if (log.isErrorEnabled()) { //performance +
+                log.error("unlock account {} fail ", acc.getAccountKey());
+                throw new AccountsTransferAmountException("unlock account " + acc.getAccountKey() + " fail ");
+            }
+        }
     }
 }

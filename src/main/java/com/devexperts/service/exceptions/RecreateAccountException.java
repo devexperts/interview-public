@@ -1,7 +1,7 @@
 package com.devexperts.service.exceptions;
 
-public class RecreateAccountException extends IllegalArgumentException{
-    public RecreateAccountException(String s) {
-        super(s);
+public class RecreateAccountException extends Exception {
+    public RecreateAccountException(String message) {
+        super(message);
     }
 }
