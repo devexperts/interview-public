@@ -7,7 +7,7 @@ import com.devexperts.service.dao.TransfersDB;
 import com.devexperts.service.exceptions.AccountsTransferAmountException;
 import com.devexperts.service.exceptions.GetAccountException;
 import com.devexperts.service.exceptions.RecreateAccountException;
-import com.devexperts.transfer.Transfer;
+import com.devexperts.account.Transfer;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -20,14 +20,22 @@ import java.util.Optional;
 public class AccountServiceImpl implements AccountService {
 
     @Autowired
-    public AccountsDB accountsDB;
+    private AccountsDB accountsDB;
     @Autowired
-    public TransfersDB transfersDB;
+    private TransfersDB transfersDB;
 
     @Override
     public void clear() {
         accountsDB.deleteAll();
         log.warn("account storage cleared");
+    }
+
+    public AccountServiceImpl() {
+    }
+
+    public AccountServiceImpl(AccountsDB accountsDB, TransfersDB transfersDB) {
+        this.accountsDB = accountsDB;
+        this.transfersDB = transfersDB;
     }
 
     @Override
@@ -71,21 +79,15 @@ public class AccountServiceImpl implements AccountService {
     @Override
     @Transactional
     public void transfer(Account source, Account target, double amount) throws AccountsTransferAmountException {
-        //after accounts locked we can do transfer
-        try {
-            doTransfer(source, target, amount);
-        } catch (Exception e) {
-            throw e;
-        }
+        doTransfer(source, target, amount);
         transfersDB.save(new Transfer(source.getAccountKey().getAccountId(), target.getAccountKey().getAccountId(), amount));
     }
 
     private void doTransfer(Account source, Account target, double amount) throws AccountsTransferAmountException {
         AccountsTransferAmountException needToThrow = null;
-        //save previous balance for simple rollback
-        double sourceBalance = source.getBalance(); //BigDecimal for raise accuracy
-        double targetBalance = target.getBalance(); //BigDecimal for raise accuracy
         try {
+            double sourceBalance = source.getBalance(); //BigDecimal for raise accuracy
+            double targetBalance = target.getBalance(); //BigDecimal for raise accuracy
             if (source.getBalance() > amount) {
                 source.setBalance(sourceBalance - amount);
                 target.setBalance(targetBalance + amount);
@@ -102,7 +104,7 @@ public class AccountServiceImpl implements AccountService {
             if (log.isErrorEnabled()) { //performance +
                 log.error("transfer fail, need rollback, accounts with key={} and key={}, amount={} exception={}", source.getAccountKey(), target.getAccountKey(), amount, e1);
             }
-            throw new AccountsTransferAmountException("transfer fail, need rollback,");
+            throw new AccountsTransferAmountException("transfer fail, need rollback");
         }
         if (needToThrow != null) throw needToThrow;
     }

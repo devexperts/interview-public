@@ -1,4 +1,4 @@
-package com.devexperts.transfer;
+package com.devexperts.account;
 
 import org.hibernate.annotations.CreationTimestamp;
 
