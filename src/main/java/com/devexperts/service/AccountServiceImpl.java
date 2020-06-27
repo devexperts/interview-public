@@ -19,6 +19,12 @@ import java.util.concurrent.ConcurrentHashMap;
 public class AccountServiceImpl implements AccountService {
     Map<AccountKey, Account> accounts = new ConcurrentHashMap<>();
 
+    {
+        accounts.put(AccountKey.valueOf(1), new Account(AccountKey.valueOf(1), "Vlad", "Sol", 0.5));
+        accounts.put(AccountKey.valueOf(2), new Account(AccountKey.valueOf(2), "Vlad2", "Sol2", 0.5));
+    }
+
+
     @Override
     public void clear() {
         accounts.clear();
@@ -70,14 +76,15 @@ public class AccountServiceImpl implements AccountService {
             doUnsafeTransferWithRollback(source, target, amount);
         } catch (Exception e) {
             unLockAccountBalance(source);
-            lockAccountBalance(target);
+            unLockAccountBalance(target);
             throw e;
         }
         unLockAccountBalance(source);
-        lockAccountBalance(target);
+        unLockAccountBalance(target);
     }
 
     private void doUnsafeTransferWithRollback(Account source, Account target, double amount) throws AccountsTransferAmountException {
+        AccountsTransferAmountException needToThrow = null;
         //save previous balance for simple rollback
         double sourceBalance = source.getBalance(); //BigDecimal for raise accuracy
         double targetBalance = target.getBalance(); //BigDecimal for raise accuracy
@@ -92,6 +99,7 @@ public class AccountServiceImpl implements AccountService {
                 if (log.isWarnEnabled()) { //performance +
                     log.warn("transfer fail, not enough money in source account, accounts with key={} and key={}, amount={} ", source.getAccountKey(), target.getAccountKey(), amount);
                 }
+                needToThrow = new AccountsTransferAmountException("transfer fail, not enough money in source account");
             }
         } catch (Exception e1) {
             if (log.isErrorEnabled()) { //performance +
@@ -103,6 +111,7 @@ public class AccountServiceImpl implements AccountService {
             }
             throw new AccountsTransferAmountException("transfer fail, but rollback complete good");
         }
+        if (needToThrow != null) throw needToThrow;
     }
 
     private void rollback(Account source, Account target, double amount, double sourceBalance, double targetBalance) throws AccountsTransferAmountException {
