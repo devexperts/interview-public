@@ -70,7 +70,13 @@ public class AccountServiceImpl implements AccountService {
     @Override
     public void transfer(Account source, Account target, double amount) throws AccountsTransferAmountException {
         lockAccountBalance(source);
-        lockAccountBalance(target);
+        try {
+            lockAccountBalance(target);
+        } catch (AccountsTransferAmountException e) {
+            //if we lock first account and can't lock second account, we need to unlock first
+            unLockAccountBalance(source);
+            throw e;
+        }
         //after accounts locked we can do transfer
         try {
             doUnsafeTransferWithRollback(source, target, amount);
