@@ -57,6 +57,10 @@ public class AccountServiceImpl implements AccountService {
         return account;
     }
 
+    /**
+     * Method throws exception when concurrent modification detected
+     * no time locks(Synchronized, ReentrantLock ...) (как в описании вакансии - использование lock-free алгоритмов :-) )
+     */
     @Override
     public void transfer(Account source, Account target, double amount) throws AccountsTransferAmountException {
         lockAccountBalance(source);
