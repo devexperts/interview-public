@@ -1,14 +1,23 @@
 package com.devexperts.account;
 
+import javax.persistence.*;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicInteger;
 
+@Entity
+@Table(name = "accounts")
 public class Account {
-    private final AccountKey accountKey;
-    private final String firstName;
-    private final String lastName;
+    @EmbeddedId
+    private AccountKey accountKey;
+    @Column(name = "FIRST_NAME")
+    private String firstName;
+    @Column(name = "LAST_NAME")
+    private String lastName;
+    @Column(name = "BALANCE")
     private Double balance; //BigDecimal for raise accuracy
     private final AtomicBoolean depositLock = new AtomicBoolean();
+
+    public Account() {
+    }
 
     public Account(AccountKey accountKey, String firstName, String lastName, Double balance) {
         this.accountKey = accountKey;

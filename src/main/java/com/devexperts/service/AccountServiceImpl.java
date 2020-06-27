@@ -2,32 +2,27 @@ package com.devexperts.service;
 
 import com.devexperts.account.Account;
 import com.devexperts.account.AccountKey;
+import com.devexperts.service.dao.AccountsDB;
 import com.devexperts.service.exceptions.AccountsTransferAmountException;
 import com.devexperts.service.exceptions.GetAccountException;
 import com.devexperts.service.exceptions.RecreateAccountException;
-import lombok.AccessLevel;
-import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.Optional;
 
 @Service
-@FieldDefaults(makeFinal = true, level = AccessLevel.PRIVATE)
 @Slf4j
 public class AccountServiceImpl implements AccountService {
-    Map<AccountKey, Account> accounts = new ConcurrentHashMap<>();
 
-    {
-        accounts.put(AccountKey.valueOf(1), new Account(AccountKey.valueOf(1), "Vlad", "Sol", 0.5));
-        accounts.put(AccountKey.valueOf(2), new Account(AccountKey.valueOf(2), "Vlad2", "Sol2", 0.5));
-    }
-
+    @Autowired
+    public AccountsDB accountsDB;
 
     @Override
     public void clear() {
-        accounts.clear();
+        accountsDB.deleteAll();
         log.warn("account storage cleared");
     }
 
@@ -39,13 +34,14 @@ public class AccountServiceImpl implements AccountService {
             }
             throw new IllegalArgumentException("null as parameter for createAccount method is not allowed");
         }
-        if (accounts.containsKey(account.getAccountKey())) {
+        if (accountsDB.existsById(account.getAccountKey())) {
             if (log.isDebugEnabled()) { //performance +
                 log.debug("attempt to recreate an existing account with key={}", account.getAccountKey());
             }
             throw new RecreateAccountException("attempt to recreate an existing account");
         }
-        accounts.put(account.getAccountKey(), account);
+
+        accountsDB.save(account);
         if (log.isDebugEnabled()) { //performance +
             log.debug("account with key={} successfully created", account.getAccountKey());
         }
@@ -53,14 +49,15 @@ public class AccountServiceImpl implements AccountService {
 
     @Override
     public Account getAccount(long id) throws GetAccountException {
-        Account account = accounts.get(AccountKey.valueOf(id));
-        if (account == null) {
+        Optional<Account> accountOptional = accountsDB.findById(AccountKey.valueOf(id));
+        if (accountOptional.isPresent()) {
+            return accountOptional.get();
+        } else {
             if (log.isWarnEnabled()) { //performance +
                 log.warn("account with key={} not find", AccountKey.valueOf(id));
             }
             throw new GetAccountException("account with key" + AccountKey.valueOf(id) + " not find");
         }
-        return account;
     }
 
     /**
@@ -68,25 +65,14 @@ public class AccountServiceImpl implements AccountService {
      * no time locks(Synchronized, ReentrantLock ...) (как в описании вакансии - использование lock-free алгоритмов :-) )
      */
     @Override
+    @Transactional
     public void transfer(Account source, Account target, double amount) throws AccountsTransferAmountException {
-        lockAccountBalance(source);
-        try {
-            lockAccountBalance(target);
-        } catch (AccountsTransferAmountException e) {
-            //if we lock first account and can't lock second account, we need to unlock first
-            unLockAccountBalance(source);
-            throw e;
-        }
         //after accounts locked we can do transfer
         try {
             doUnsafeTransferWithRollback(source, target, amount);
         } catch (Exception e) {
-            unLockAccountBalance(source);
-            unLockAccountBalance(target);
             throw e;
         }
-        unLockAccountBalance(source);
-        unLockAccountBalance(target);
     }
 
     private void doUnsafeTransferWithRollback(Account source, Account target, double amount) throws AccountsTransferAmountException {
