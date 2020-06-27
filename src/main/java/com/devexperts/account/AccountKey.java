@@ -1,12 +1,17 @@
 package com.devexperts.account;
 
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
+
 /**
  * Unique Account identifier
  *
  * <p>
  * NOTE: we suspect that later {@link #accountId} is not going to be uniquely identifying an account,
  * as we might add human-readable account representation and some clearing codes for partners.
- * */
+ */
+@EqualsAndHashCode
+@ToString
 public class AccountKey {
     private final long accountId;
 
