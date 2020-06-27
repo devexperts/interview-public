@@ -3,9 +3,11 @@ package com.devexperts.service;
 import com.devexperts.account.Account;
 import com.devexperts.account.AccountKey;
 import com.devexperts.service.dao.AccountsDB;
+import com.devexperts.service.dao.TransfersDB;
 import com.devexperts.service.exceptions.AccountsTransferAmountException;
 import com.devexperts.service.exceptions.GetAccountException;
 import com.devexperts.service.exceptions.RecreateAccountException;
+import com.devexperts.transfer.Transfer;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -19,6 +21,8 @@ public class AccountServiceImpl implements AccountService {
 
     @Autowired
     public AccountsDB accountsDB;
+    @Autowired
+    public TransfersDB transfersDB;
 
     @Override
     public void clear() {
@@ -69,13 +73,14 @@ public class AccountServiceImpl implements AccountService {
     public void transfer(Account source, Account target, double amount) throws AccountsTransferAmountException {
         //after accounts locked we can do transfer
         try {
-            doUnsafeTransferWithRollback(source, target, amount);
+            doTransfer(source, target, amount);
         } catch (Exception e) {
             throw e;
         }
+        transfersDB.save(new Transfer(source.getAccountKey().getAccountId(), target.getAccountKey().getAccountId(), amount));
     }
 
-    private void doUnsafeTransferWithRollback(Account source, Account target, double amount) throws AccountsTransferAmountException {
+    private void doTransfer(Account source, Account target, double amount) throws AccountsTransferAmountException {
         AccountsTransferAmountException needToThrow = null;
         //save previous balance for simple rollback
         double sourceBalance = source.getBalance(); //BigDecimal for raise accuracy
@@ -97,42 +102,8 @@ public class AccountServiceImpl implements AccountService {
             if (log.isErrorEnabled()) { //performance +
                 log.error("transfer fail, need rollback, accounts with key={} and key={}, amount={} exception={}", source.getAccountKey(), target.getAccountKey(), amount, e1);
             }
-            rollback(source, target, amount, sourceBalance, targetBalance);
-            if (log.isErrorEnabled()) { //performance +
-                log.error("rollback complete good, accounts with key={} and key={}, amount={} exception={}", source.getAccountKey(), target.getAccountKey(), amount, e1);
-            }
-            throw new AccountsTransferAmountException("transfer fail, but rollback complete good");
+            throw new AccountsTransferAmountException("transfer fail, need rollback,");
         }
         if (needToThrow != null) throw needToThrow;
-    }
-
-    private void rollback(Account source, Account target, double amount, double sourceBalance, double targetBalance) throws AccountsTransferAmountException {
-        try { //rollback
-            source.setBalance(sourceBalance);
-            target.setBalance(targetBalance);
-        } catch (Exception e2) {
-            if (log.isErrorEnabled()) { //performance +
-                log.error("rollback fail, CALL TO DOCTOR, accounts with key={} and key={}, amount={} exception={}", source.getAccountKey(), target.getAccountKey(), amount, e2);
-                throw new AccountsTransferAmountException("rollback fail, CALL TO DOCTOR");
-            }
-        }
-    }
-
-    private void lockAccountBalance(Account source) throws AccountsTransferAmountException {
-        if (!source.lockBalance()) {
-            if (log.isErrorEnabled()) { //performance +
-                log.error("concurrent balance modification error with account {} ", source.getAccountKey());
-                throw new AccountsTransferAmountException("concurrent balance modification error with account" + source.getAccountKey());
-            }
-        }
-    }
-
-    private void unLockAccountBalance(Account acc) throws AccountsTransferAmountException {
-        if (!acc.unLockBalance()) {
-            if (log.isErrorEnabled()) { //performance +
-                log.error("unlock account {} fail ", acc.getAccountKey());
-                throw new AccountsTransferAmountException("unlock account " + acc.getAccountKey() + " fail ");
-            }
-        }
     }
 }

@@ -14,7 +14,6 @@ public class Account {
     private String lastName;
     @Column(name = "BALANCE")
     private Double balance; //BigDecimal for raise accuracy
-    private final AtomicBoolean depositLock = new AtomicBoolean();
 
     public Account() {
     }
@@ -25,20 +24,6 @@ public class Account {
         this.lastName = lastName;
         this.balance = balance;
     }
-
-    /**
-     * lock balance for prevent future concurrent modification problem
-     *
-     * @return false - balance modification forbidden, true- lock successful
-     */
-    public boolean lockBalance() {
-        return depositLock.compareAndSet(false, true);
-    }
-
-    public boolean unLockBalance() {
-        return depositLock.compareAndSet(true, false);
-    }
-
 
     public AccountKey getAccountKey() {
         return accountKey;

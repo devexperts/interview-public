@@ -30,4 +30,8 @@ public class AccountKey implements Serializable {
     public static AccountKey valueOf(long accountId) {
         return new AccountKey(accountId);
     }
+
+    public long getAccountId() {
+        return accountId;
+    }
 }
