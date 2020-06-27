@@ -7,7 +7,7 @@ public class Account {
     private final AccountKey accountKey;
     private final String firstName;
     private final String lastName;
-    private Double balance;
+    private Double balance; //BigDecimal for raise accuracy
     private final AtomicBoolean depositLock = new AtomicBoolean();
 
     public Account(AccountKey accountKey, String firstName, String lastName, Double balance) {

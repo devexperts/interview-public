@@ -75,8 +75,8 @@ public class AccountServiceImpl implements AccountService {
 
     private void doUnsafeTransferWithRollback(Account source, Account target, double amount) throws AccountsTransferAmountException {
         //save previous balance for simple rollback
-        double sourceBalance = source.getBalance();
-        double targetBalance = target.getBalance();
+        double sourceBalance = source.getBalance(); //BigDecimal for raise accuracy
+        double targetBalance = target.getBalance(); //BigDecimal for raise accuracy
         try {
             if (source.getBalance() > amount) {
                 source.setBalance(sourceBalance - amount);
