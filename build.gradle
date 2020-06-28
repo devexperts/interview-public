@@ -17,12 +17,13 @@ test {
     useJUnitPlatform()
 }
 
+
 repositories {
     mavenCentral()
 }
 
 bootJar {
-    mainClassName = 'com.devexperts.service.ApplicationRunner'
+    mainClassName = 'com.devexperts.com.devexperts.service.ApplicationRunner'
 }
 
 dependencies {
@@ -43,13 +44,14 @@ dependencies {
     testCompile "org.assertj:assertj-core:3.11.1"
 
     testImplementation(enforcedPlatform("org.junit:junit-bom:$junitVersion")) // JUnit 5 BOM
-    testCompile "org.junit.jupiter:junit-jupiter-api:$junitVersion"
-    testCompile  "org.junit.jupiter:junit-jupiter-engine:$junitVersion"
-    testRuntime  "org.junit.platform:junit-platform-engine:$junitPlatformVersion"
-    testRuntime  "org.junit.platform:junit-platform-commons:$junitPlatformVersion"
+    testRuntime "org.junit.jupiter:junit-jupiter-api:$junitVersion"
+    testRuntime "org.junit.jupiter:junit-jupiter-engine:$junitVersion"
+    testRuntime "org.junit.platform:junit-platform-engine:$junitPlatformVersion"
+    testRuntime "org.junit.platform:junit-platform-commons:$junitPlatformVersion"
 
     testRuntime "org.postgresql:postgresql:42.2.5"
 
     testImplementation "org.testcontainers:junit-jupiter:$testContainersVersion"
     testImplementation "org.testcontainers:postgresql:$testContainersVersion"
+
 }

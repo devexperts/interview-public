@@ -1,10 +1,13 @@
 package com.devexperts.account;
 
+import lombok.EqualsAndHashCode;
+
 import javax.persistence.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 @Entity
 @Table(name = "accounts")
+@EqualsAndHashCode
 public class Account {
     @EmbeddedId
     private AccountKey accountKey;
