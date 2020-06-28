@@ -17,30 +17,41 @@ test {
     useJUnitPlatform()
 }
 
+
 repositories {
     mavenCentral()
 }
 
 bootJar {
-    mainClassName = 'com.devexperts.service.ApplicationRunner'
+    mainClassName = 'com.devexperts.com.devexperts.service.ApplicationRunner'
 }
 
 dependencies {
     compile("org.springframework.boot:spring-boot-starter-web")
     compile("org.springframework.boot:spring-boot-starter-actuator")
+    implementation("org.postgresql:postgresql:42.2.5")
+    implementation group: 'org.springframework.boot', name: 'spring-boot-starter-data-jpa', version: '2.3.1.RELEASE'
+
+    compileOnly 'org.projectlombok:lombok:1.18.12'
+    annotationProcessor 'org.projectlombok:lombok:1.18.12'
+
+    testCompileOnly 'org.projectlombok:lombok:1.18.12'
+    testAnnotationProcessor 'org.projectlombok:lombok:1.18.12'
+
 
     testCompile("org.springframework.boot:spring-boot-starter-test")
     testCompile "org.mockito:mockito-core:2.23.0"
     testCompile "org.assertj:assertj-core:3.11.1"
 
     testImplementation(enforcedPlatform("org.junit:junit-bom:$junitVersion")) // JUnit 5 BOM
-    testCompile "org.junit.jupiter:junit-jupiter-api:$junitVersion"
-    testCompile  "org.junit.jupiter:junit-jupiter-engine:$junitVersion"
-    testRuntime  "org.junit.platform:junit-platform-engine:$junitPlatformVersion"
-    testRuntime  "org.junit.platform:junit-platform-commons:$junitPlatformVersion"
+    testRuntime "org.junit.jupiter:junit-jupiter-api:$junitVersion"
+    testRuntime "org.junit.jupiter:junit-jupiter-engine:$junitVersion"
+    testRuntime "org.junit.platform:junit-platform-engine:$junitPlatformVersion"
+    testRuntime "org.junit.platform:junit-platform-commons:$junitPlatformVersion"
 
     testRuntime "org.postgresql:postgresql:42.2.5"
 
     testImplementation "org.testcontainers:junit-jupiter:$testContainersVersion"
     testImplementation "org.testcontainers:postgresql:$testContainersVersion"
+
 }

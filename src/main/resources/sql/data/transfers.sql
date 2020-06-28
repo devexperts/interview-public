@@ -1,0 +1,7 @@
+CREATE TABLE Transfers(
+    ID SERIAL PRIMARY KEY,
+    SOURCE_ID int,
+    TARGET_ID int,
+    AMOUNT numeric(1000,888),
+    TRANSFER_TIME TIMESTAMP
+);
