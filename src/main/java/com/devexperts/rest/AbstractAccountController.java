@@ -1,8 +1,7 @@
 package com.devexperts.rest;
 
-import com.devexperts.dto.TransferMoneyDto;
 import org.springframework.http.ResponseEntity;
 
 public abstract class AbstractAccountController {
-    abstract ResponseEntity<Void> transfer(TransferMoneyDto transferMoneyDto);
+    abstract ResponseEntity<Void> transfer(long sourceId, long targetId, double amount);
 }
