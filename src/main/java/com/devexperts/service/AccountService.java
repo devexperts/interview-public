@@ -1,6 +1,7 @@
 package com.devexperts.service;
 
 import com.devexperts.account.Account;
+import com.devexperts.dto.TransferMoneyDto;
 
 public interface AccountService {
 
@@ -29,9 +30,7 @@ public interface AccountService {
     /**
      * Transfers given amount of money from source account to target account
      *
-     * @param source account to transfer money from
-     * @param target account to transfer money to
-     * @param amount dollar amount to transfer
+     * @param dto the ids of both accounts and the amount to be transferred
      * */
-    void transfer(Account source, Account target, double amount);
+    void transfer(TransferMoneyDto dto);
 }
