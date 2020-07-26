@@ -51,8 +51,12 @@ public class AccountServiceImpl implements AccountService {
             throw new IllegalArgumentException( "amount is negative or zero" );
         }
 
-        if ( source == null || target == null ) {
-            throw new IllegalArgumentException( "source or target is null" );
+        if ( source == null  ) {
+            throw new IllegalArgumentException( "source is null" );
+        }
+
+        if ( target == null ) {
+            throw new IllegalArgumentException( "target is null" );
         }
 
         if ( source.getAccountKey().equals( target.getAccountKey() ) ) {

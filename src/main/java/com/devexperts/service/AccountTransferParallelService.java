@@ -18,6 +18,14 @@ public class AccountTransferParallelService extends AccountServiceImpl {
         Account sourceCash = getAccount( source.getAccountKey() );
         Account targetCash = getAccount( target.getAccountKey() );
 
+        if (sourceCash == null) {
+            throw new IllegalArgumentException( "source-account is not found" );
+        }
+
+        if (targetCash == null) {
+            throw new IllegalArgumentException( "target-account is not found" );
+        }
+
         //used an optimistic approach to blocking resources
         synchronized ( sourceCash ) {
             if ( sourceCash.getBalance() - amount < 0 ) {
