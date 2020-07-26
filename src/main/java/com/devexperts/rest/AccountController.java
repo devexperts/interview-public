@@ -2,6 +2,7 @@ package com.devexperts.rest;
 
 import com.devexperts.account.Account;
 import com.devexperts.account.AccountKey;
+import com.devexperts.rest.data.ResponseMessage;
 import com.devexperts.service.AccountService;
 import com.devexperts.service.exceptions.NegativeBalanceException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,14 +16,14 @@ public class AccountController extends AbstractAccountController {
     private AccountService accountService;
 
     @Autowired
-    public void setAccountService(AccountService accountService) {
+    public void setAccountService( AccountService accountService ) {
         this.accountService = accountService;
     }
 
     //For test
     @Deprecated
     @GetMapping("test/init")
-    public ResponseEntity<Void> testInit () {
+    public ResponseEntity<Void> testInit() {
         Account account1 = new Account( AccountKey.valueOf( 1 ), "Sergey", "Ivanov", 12d );
         Account account2 = new Account( AccountKey.valueOf( 2 ), "Vika", "Okulist", 125.0 );
         Account account3 = new Account( AccountKey.valueOf( 3 ), "Nikoly", "Frolov", 0.3d );
@@ -39,21 +40,38 @@ public class AccountController extends AbstractAccountController {
             @RequestParam("target_id") long targetId,
             @RequestParam("amount") double amount
     ) {
-        Account source = accountService.getAccount(sourceId);
-        Account target = accountService.getAccount(targetId);
+        Account source = accountService.getAccount( sourceId );
+        Account target = accountService.getAccount( targetId );
 
         if ( source == null || target == null ) {
-            return ResponseEntity.notFound().build();
+            throw new NullPointerException ("account is not found");
         }
 
-        try {
-            accountService.transfer(source, target, amount);
-        } catch ( NegativeBalanceException e ) {
-            return ResponseEntity.status( 500 ).build();
-        } catch ( IllegalArgumentException e ) {
-            return ResponseEntity.badRequest().build();
-        }
-
+        accountService.transfer( source, target, amount );
         return ResponseEntity.ok().build();
+    }
+
+    @ExceptionHandler({IllegalArgumentException.class})
+    public ResponseEntity<ResponseMessage> handleIllegalArgumentException( IllegalArgumentException ex ) {
+        return ResponseEntity.badRequest().body(
+                new ResponseMessage( ex.getMessage(),
+                        400, "BAD_REQUEST", "/operations/transfer")
+        );
+    }
+
+    @ExceptionHandler({NegativeBalanceException.class})
+    public ResponseEntity<ResponseMessage> handleNegativeBalanceException( NegativeBalanceException ex ) {
+        return ResponseEntity.status( 500 ).body(
+                new ResponseMessage( ex.getMessage(),
+                        500, "INTERNAL_SERVER_ERROR", "/operations/transfer")
+        );
+    }
+
+    @ExceptionHandler({NullPointerException.class})
+    public ResponseEntity<ResponseMessage> handleNullPointerException( NullPointerException ex ) {
+        return ResponseEntity.status( 404 ).body(
+                new ResponseMessage( ex.getMessage(),
+                        404, "NOT_FOUND", "/operations/transfer")
+        );
     }
 }
