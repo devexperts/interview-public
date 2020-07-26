@@ -12,6 +12,8 @@ public interface AccountService {
 
     /**
      * Creates a new account
+     * Todo update???
+     * Todo if null???
      *
      * @param account account entity to add or update
      * @throws IllegalArgumentException if account is already present
