@@ -15,7 +15,7 @@ class AccountServiceTaskOneTest {
 
     static {
         account = new Account(
-                AccountKey.valueOf( key ), "Ivanov", "Sergey", 100d
+                AccountKey.valueOf( key ), "Sergey", "Ivanov", 100d
         );
     }
 
