@@ -2,11 +2,10 @@ package com.devexperts.service;
 
 import com.devexperts.account.Account;
 import com.devexperts.account.AccountKey;
+import com.devexperts.service.exceptions.NegativeBalanceException;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 @Service
@@ -24,7 +23,7 @@ public class AccountServiceImpl implements AccountService {
      * @throws NullPointerException if account null
      */
     @Override
-    public void createAccount( Account account ) throws IllegalArgumentException, NullPointerException {
+    public void createAccount( Account account ) {
         if ( account == null ) {
             throw new NullPointerException( "account is null" );
         }
@@ -43,6 +42,27 @@ public class AccountServiceImpl implements AccountService {
 
     @Override
     public void transfer( Account source, Account target, double amount ) {
-        //do nothing for now
+        if ( amount <= 0 ) {
+            throw new IllegalArgumentException ("amount is negative or zero");
+        }
+
+        if ( source == null || target == null ) {
+            throw new IllegalArgumentException ("source or target is null");
+        }
+
+        if (source.getAccountKey().equals( target.getAccountKey() )) {
+            throw new IllegalArgumentException ("source and target is one account");
+        }
+
+        if ( source.getBalance() - amount < 0 ) {
+            throw new NegativeBalanceException( "source has insufficient funds on his account" );
+        }
+
+        transferAmount( source, target, amount );
+    }
+
+    private void transferAmount( Account source, Account target, double amount ) {
+        source.setBalance( source.getBalance() - amount );
+        target.setBalance( target.getBalance() + amount );
     }
 }
