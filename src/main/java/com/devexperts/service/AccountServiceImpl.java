@@ -42,27 +42,33 @@ public class AccountServiceImpl implements AccountService {
 
     @Override
     public void transfer( Account source, Account target, double amount ) {
-        if ( amount <= 0 ) {
-            throw new IllegalArgumentException ("amount is negative or zero");
-        }
-
-        if ( source == null || target == null ) {
-            throw new IllegalArgumentException ("source or target is null");
-        }
-
-        if (source.getAccountKey().equals( target.getAccountKey() )) {
-            throw new IllegalArgumentException ("source and target is one account");
-        }
-
-        if ( source.getBalance() - amount < 0 ) {
-            throw new NegativeBalanceException( "source has insufficient funds on his account" );
-        }
-
+        checkArgumentForTransfer( source, target, amount );
         transferAmount( source, target, amount );
     }
 
+    protected void checkArgumentForTransfer( Account source, Account target, double amount ) {
+        if ( amount <= 0 ) {
+            throw new IllegalArgumentException( "amount is negative or zero" );
+        }
+
+        if ( source == null || target == null ) {
+            throw new IllegalArgumentException( "source or target is null" );
+        }
+
+        if ( source.getAccountKey().equals( target.getAccountKey() ) ) {
+            throw new IllegalArgumentException( "source and target is one account" );
+        }
+    }
+
     private void transferAmount( Account source, Account target, double amount ) {
+        if ( source.getBalance() - amount < 0 ) {
+            throw new NegativeBalanceException( "source has insufficient funds on his account" );
+        }
         source.setBalance( source.getBalance() - amount );
         target.setBalance( target.getBalance() + amount );
+    }
+
+    protected Map<AccountKey, Account> getAccounts() {
+        return accounts;
     }
 }
