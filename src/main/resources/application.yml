@@ -1,0 +1,12 @@
+server:
+  address: 0.0.0.0
+  port: 8080
+  compression:
+    enabled: true
+application:
+  pg:
+    stubmode: true
+  transfer:
+    executor:
+      thread-pool-max-size: 20
+      thread-ttl-time-seconds: 60
