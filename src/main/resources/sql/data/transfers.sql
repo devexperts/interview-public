@@ -15,3 +15,5 @@ create table if not exists transfers
 
 comment on table transfers is 'Table for transfers records';
 
+create index if not exists transfers_source_id_index
+	on transfers (source_id);
