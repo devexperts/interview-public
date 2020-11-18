@@ -42,7 +42,12 @@ public class AccountServiceImpl implements AccountService {
 
     @Override
     public void transfer(Account source, Account target, double amount) {
+        if (source == null || target == null || source.equals(target)) {
+            throw new IllegalArgumentException("Invalid source/target account!");
+        }
+
         log.debug(String.format("Going to transfer $%s from %s to %s", amount, source.getLastName(), target.getLastName()));
+
         if (!hasAccount(source)) {
             createAccount(source);
         }
@@ -50,8 +55,10 @@ public class AccountServiceImpl implements AccountService {
             createAccount(target);
         }
 
-        source.withdraw(amount);
-        target.deposit(amount);
+        synchronized (this) {
+            source.withdraw(amount);
+            target.deposit(amount);
+        }
         log.debug(String.format("Amount left in %s is $%s", source.getLastName(), source.getBalance()));
     }
 }
