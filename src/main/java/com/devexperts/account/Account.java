@@ -1,5 +1,8 @@
 package com.devexperts.account;
 
+import com.devexperts.account.exceptions.InsufficientFundsException;
+
+@SuppressWarnings("unused")
 public class Account {
     private final AccountKey accountKey;
     private final String firstName;
@@ -39,7 +42,7 @@ public class Account {
         }
 
         if (amount.compareTo(this.balance) > 0) {
-            throw new IllegalArgumentException("Insufficient funds");
+            throw new InsufficientFundsException();
         }
 
         this.balance -= amount;
