@@ -2,15 +2,18 @@ package com.devexperts.service;
 
 import com.devexperts.account.Account;
 import com.devexperts.account.AccountKey;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 @Service
 public class AccountServiceImpl implements AccountService {
+    private final Log log = LogFactory.getLog(AccountServiceImpl.class);
 
-    private final List<Account> accounts = new ArrayList<>();
+    private Map<AccountKey, Account> accounts = new HashMap<>();
 
     @Override
     public void clear() {
@@ -19,19 +22,43 @@ public class AccountServiceImpl implements AccountService {
 
     @Override
     public void createAccount(Account account) {
-        accounts.add(account);
+        AccountKey accountKey = account.getAccountKey();
+        if (accounts.containsKey(accountKey)) {
+            throw new IllegalArgumentException(String.format("Account with key %s already exists!", accountKey));
+        }
+        accounts.put(accountKey, account);
+        log.debug(String.format("Account with key %s was created!", account.getAccountKey()));
     }
 
     @Override
     public Account getAccount(long id) {
-        return accounts.stream()
-                .filter(account -> account.getAccountKey() == AccountKey.valueOf(id))
-                .findAny()
-                .orElse(null);
+        return accounts.get(AccountKey.valueOf(id));
+    }
+
+    @SuppressWarnings("BooleanMethodIsAlwaysInverted")
+    private boolean hasAccount(Account account) {
+        return accounts.containsKey(account.getAccountKey());
     }
 
     @Override
     public void transfer(Account source, Account target, double amount) {
-        //do nothing for now
+        if (source == null || target == null || source.equals(target)) {
+            throw new IllegalArgumentException("Invalid source/target account!");
+        }
+
+        log.debug(String.format("Going to transfer $%s from %s to %s", amount, source.getLastName(), target.getLastName()));
+
+        if (!hasAccount(source)) {
+            createAccount(source);
+        }
+        if (!hasAccount(target)) {
+            createAccount(target);
+        }
+
+        synchronized (this) {
+            source.withdraw(amount);
+            target.deposit(amount);
+        }
+        log.debug(String.format("Amount left in %s is $%s", source.getLastName(), source.getBalance()));
     }
 }

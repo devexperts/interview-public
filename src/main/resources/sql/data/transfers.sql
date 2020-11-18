@@ -1,0 +1,8 @@
+CREATE TABLE transfers(
+id NUMERIC(19) NOT NULL PRIMARY KEY,
+source_id NUMERIC(19) NOT NULL,
+target_id NUMERIC(19) NOT NULL,
+amount NUMERIC(9,2) NOT NULL,
+transfer_time TIMESTAMP
+);
+
