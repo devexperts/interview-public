@@ -1,37 +1,34 @@
 package com.devexperts.service;
 
-import com.devexperts.account.Account;
-import com.devexperts.account.AccountKey;
+import java.util.HashMap;
+import java.util.Map;
+
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.List;
+import com.devexperts.account.Account;
+import com.devexperts.account.AccountKey;
 
 @Service
 public class AccountServiceImpl implements AccountService {
+	private final Map<AccountKey, Account> allAccounts = new HashMap<>();
 
-    private final List<Account> accounts = new ArrayList<>();
+	@Override
+	public void clear() {
+		allAccounts.clear();
+	}
 
-    @Override
-    public void clear() {
-        accounts.clear();
-    }
+	@Override
+	public void createAccount(Account account) {
+		allAccounts.put(account.getAccountKey(), account);
+	}
 
-    @Override
-    public void createAccount(Account account) {
-        accounts.add(account);
-    }
+	@Override
+	public Account getAccount(long id) {
+		return allAccounts.get(AccountKey.valueOf(id));
+	}
 
-    @Override
-    public Account getAccount(long id) {
-        return accounts.stream()
-                .filter(account -> account.getAccountKey() == AccountKey.valueOf(id))
-                .findAny()
-                .orElse(null);
-    }
-
-    @Override
-    public void transfer(Account source, Account target, double amount) {
-        //do nothing for now
-    }
+	@Override
+	public void transfer(Account source, Account target, double amount) {
+		// do nothing for now
+	}
 }
