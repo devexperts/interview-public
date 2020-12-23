@@ -7,8 +7,14 @@ import org.springframework.stereotype.Service;
 
 import com.devexperts.account.Account;
 import com.devexperts.account.AccountKey;
+import com.devexperts.exception.AccountNotRegisteredException;
+import com.devexperts.exception.NegativeAmountException;
+import com.devexperts.exception.NotEnoughAmountException;
+
+import lombok.extern.slf4j.Slf4j;
 
 @Service
+@Slf4j
 public class AccountServiceImpl implements AccountService {
 	private final Map<AccountKey, Account> allAccounts = new HashMap<>();
 
@@ -29,6 +35,31 @@ public class AccountServiceImpl implements AccountService {
 
 	@Override
 	public void transfer(Account source, Account target, double amount) {
-		// do nothing for now
+		validateAndExecuteTransfer(source, target, amount);
+	}
+	
+	private void validateAndExecuteTransfer(Account source, Account target, double amount) {
+		
+		if(!(isAccountCreated(source) && isAccountCreated(target))) {
+			log.error("Cannot procede with transfer, one of the accounts is not registered");
+			throw new AccountNotRegisteredException("Cannot procede with transfer, one of the accounts is not registered");
+		}
+		
+		if(amount < 0) {
+			log.error(String.format("Cannot transfer negative amount %", amount));
+			throw new NegativeAmountException(String.format("Cannot transfer negative amount %", amount));
+		}
+		
+		if(source.getBalance() < amount) {
+			log.error(String.format("% as balance is more than the balance of the sourse", amount));
+			throw new NotEnoughAmountException(String.format("% as balance is more than the balance of the sourse", amount));
+		}
+		
+		allAccounts.get(source.getAccountKey()).decreaseBalance(amount);
+		allAccounts.get(target.getAccountKey()).increaseBalance(amount);
+	}
+	
+	private boolean isAccountCreated(Account account) {
+		return allAccounts.containsKey(account.getAccountKey());
 	}
 }
