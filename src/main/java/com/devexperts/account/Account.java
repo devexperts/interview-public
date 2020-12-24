@@ -2,13 +2,17 @@ package com.devexperts.account;
 
 import javax.validation.constraints.NotBlank;
 
+import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import lombok.ToString;
 
 @ToString
 @EqualsAndHashCode
+@AllArgsConstructor
+@Getter
 public class Account {
-    private final AccountKey accountKey;
+    private final long ID;
     
     @NotBlank
     private final String firstName;
@@ -17,33 +21,6 @@ public class Account {
     private final String lastName;
     
     private Double balance;
-
-    public Account(AccountKey accountKey, String firstName, String lastName, Double balance) {
-        this.accountKey = accountKey;
-        this.firstName = firstName;
-        this.lastName = lastName;
-        this.balance = balance;
-    }
-
-    public AccountKey getAccountKey() {
-        return accountKey;
-    }
-
-    public String getFirstName() {
-        return firstName;
-    }
-
-    public String getLastName() {
-        return lastName;
-    }
-
-    public Double getBalance() {
-        return balance;
-    }
-
-    public void setBalance(Double balance) {
-        this.balance = balance;
-    }
     
     public void increaseBalance(double balance) {
     	this.balance += balance;
@@ -52,4 +29,8 @@ public class Account {
     public void decreaseBalance(double balance) {
     	this.balance -= balance;
     }
+
+	public void setBalance(Double balance) {
+		this.balance = balance;
+	}
 }
