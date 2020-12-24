@@ -8,7 +8,7 @@ import org.springframework.stereotype.Service;
 import com.devexperts.account.Account;
 import com.devexperts.account.AccountKey;
 import com.devexperts.exception.AccountNotRegisteredException;
-import com.devexperts.exception.NegativeAmountException;
+import com.devexperts.exception.ParametersInvalidException;
 import com.devexperts.exception.NotEnoughAmountException;
 
 import lombok.extern.slf4j.Slf4j;
@@ -45,21 +45,24 @@ public class AccountServiceImpl implements AccountService {
 			throw new AccountNotRegisteredException("Cannot procede with transfer, one of the accounts is not registered");
 		}
 		
-		if(amount < 0) {
-			log.error(String.format("Cannot transfer negative amount %", amount));
-			throw new NegativeAmountException(String.format("Cannot transfer negative amount %", amount));
+		if(checkParams(source) && checkParams(target)) {
+			log.error("Invalid parameters");
+			throw new ParametersInvalidException("Invalid parameters");
 		}
 		
 		if(source.getBalance() < amount) {
 			log.error(String.format("% as balance is more than the balance of the sourse", amount));
 			throw new NotEnoughAmountException(String.format("% as balance is more than the balance of the sourse", amount));
 		}
-		
 		allAccounts.get(source.getAccountKey()).decreaseBalance(amount);
 		allAccounts.get(target.getAccountKey()).increaseBalance(amount);
 	}
 	
 	private boolean isAccountCreated(Account account) {
 		return allAccounts.containsKey(account.getAccountKey());
+	}
+	
+	private boolean checkParams(Account account) {
+		return account.getBalance() < 0 && account.getFirstName().isEmpty() && account.getLastName().isEmpty();
 	}
 }
