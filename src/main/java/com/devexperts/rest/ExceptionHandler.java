@@ -14,8 +14,8 @@ import com.devexperts.exception.ParametersInvalidException;
 @ControllerAdvice
 public class ExceptionHandler extends ResponseEntityExceptionHandler{
 	
-	@org.springframework.web.bind.annotation.ExceptionHandler(value = AccountNotRegisteredException.class)
-    protected ResponseEntity<Object> accountNotRegistered(RuntimeException e, WebRequest request) {
+	@org.springframework.web.bind.annotation.ExceptionHandler(AccountNotRegisteredException.class)
+    protected ResponseEntity<Object> accountNotRegistered(AccountNotRegisteredException e, WebRequest request) {
         return handleExceptionInternal(
                 e,
                 e.getMessage(),
@@ -26,7 +26,7 @@ public class ExceptionHandler extends ResponseEntityExceptionHandler{
     }
 	
 	@org.springframework.web.bind.annotation.ExceptionHandler(value = NotEnoughAmountException.class)
-    protected ResponseEntity<Object> amountNotEnough(RuntimeException e, WebRequest request) {
+    protected ResponseEntity<Object> amountNotEnough(NotEnoughAmountException e, WebRequest request) {
         return handleExceptionInternal(
                 e,
                 e.getMessage(),
@@ -37,7 +37,7 @@ public class ExceptionHandler extends ResponseEntityExceptionHandler{
     }
 
 	@org.springframework.web.bind.annotation.ExceptionHandler(value = ParametersInvalidException.class)
-    protected ResponseEntity<Object> invalidParams(RuntimeException e, WebRequest request) {
+    protected ResponseEntity<Object> invalidParams(ParametersInvalidException e, WebRequest request) {
         return handleExceptionInternal(
                 e,
                 e.getMessage(),
@@ -46,6 +46,5 @@ public class ExceptionHandler extends ResponseEntityExceptionHandler{
                 request
         );
     }
-
 
 }
