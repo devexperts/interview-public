@@ -17,7 +17,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class AccountServiceImpl implements AccountService {
 	private final Map<AccountKey, Account> allAccounts = new HashMap<>();
-
+	
 	@Override
 	public void clear() {
 		allAccounts.clear();
@@ -35,7 +35,9 @@ public class AccountServiceImpl implements AccountService {
 
 	@Override
 	public void transfer(Account source, Account target, double amount) {
-		validateAndExecuteTransfer(source, target, amount);
+		synchronized(this) {
+			validateAndExecuteTransfer(source, target, amount);
+		}
 	}
 	
 	private void validateAndExecuteTransfer(Account source, Account target, double amount) {
