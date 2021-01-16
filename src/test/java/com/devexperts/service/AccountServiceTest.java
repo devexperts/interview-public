@@ -10,6 +10,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -39,6 +43,27 @@ public class AccountServiceTest {
     @Test
     public void testGetById() {
         Account account = accountService.getAccount(4);
-        assertEquals(account.getFirstName(), "Anton");
+        assertEquals("Anton", account.getFirstName());
+    }
+
+    @Test
+    public void testTransfer() throws InterruptedException {
+        ExecutorService executor = Executors.newSingleThreadExecutor();
+        for (int i = 1; i <= 40; i++) {
+            executor.execute(() -> accountService.transfer(accountService.getAccount(1), accountService.getAccount(2), 10.0));
+        }
+        for (int i = 1; i <= 50; i++) {
+            executor.execute(() -> accountService.transfer(accountService.getAccount(4), accountService.getAccount(3), 10.0));
+        }
+        executor.shutdown();
+        if (executor.awaitTermination(3, TimeUnit.SECONDS)) {
+            assertEquals(600, accountService.getAccount(1).getBalance());
+            assertEquals(900, accountService.getAccount(2).getBalance());
+            assertEquals(600, accountService.getAccount(3).getBalance());
+            assertEquals(200, accountService.getAccount(4).getBalance());
+            assertEquals(300, accountService.getAccount(5).getBalance());
+        } else {
+            fail("something wrong");
+        }
     }
 }
