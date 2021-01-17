@@ -55,12 +55,43 @@ public class AccountServiceTest {
         for (int i = 1; i <= 50; i++) {
             executor.execute(() -> accountService.transfer(accountService.getAccount(4), accountService.getAccount(3), 10.0));
         }
+        for (int i = 1; i <= 1000; i++) {
+            if (i % 2 == 0) {
+                executor.execute(() -> accountService.transfer(accountService.getAccount(1), accountService.getAccount(3), 10.0));
+            } else {
+                executor.execute(() -> accountService.transfer(accountService.getAccount(3), accountService.getAccount(1), 10.0));
+            }
+        }
         executor.shutdown();
         if (executor.awaitTermination(3, TimeUnit.SECONDS)) {
             assertEquals(600, accountService.getAccount(1).getBalance());
             assertEquals(900, accountService.getAccount(2).getBalance());
             assertEquals(600, accountService.getAccount(3).getBalance());
             assertEquals(200, accountService.getAccount(4).getBalance());
+            assertEquals(300, accountService.getAccount(5).getBalance());
+        } else {
+            fail("something wrong");
+        }
+    }
+
+    @Test
+    public void testTransferAsync() throws InterruptedException {
+        ExecutorService executor = Executors.newFixedThreadPool(8);
+        for (int i = 1; i <= 100_000; i++) {
+            if (i % 2 == 0) {
+                executor.execute(() -> accountService.transfer(accountService.getAccount(2), accountService.getAccount(5), 10.0));
+                executor.execute(() -> accountService.transfer(accountService.getAccount(1), accountService.getAccount(3), 10.0));
+            } else {
+                executor.execute(() -> accountService.transfer(accountService.getAccount(3), accountService.getAccount(1), 10.0));
+                executor.execute(() -> accountService.transfer(accountService.getAccount(5), accountService.getAccount(2), 10.0));
+            }
+        }
+        executor.shutdown();
+        if (executor.awaitTermination(10, TimeUnit.SECONDS)) {
+            assertEquals(1000, accountService.getAccount(1).getBalance());
+            assertEquals(100, accountService.getAccount(3).getBalance());
+
+            assertEquals(500, accountService.getAccount(2).getBalance());
             assertEquals(300, accountService.getAccount(5).getBalance());
         } else {
             fail("something wrong");

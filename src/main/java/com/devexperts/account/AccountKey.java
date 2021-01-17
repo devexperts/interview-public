@@ -9,7 +9,7 @@ import java.util.Objects;
  * NOTE: we suspect that later {@link #accountId} is not going to be uniquely identifying an account,
  * as we might add human-readable account representation and some clearing codes for partners.
  */
-public class AccountKey {
+public class AccountKey implements Comparable<AccountKey> {
 
     private final long accountId;
 
@@ -23,8 +23,12 @@ public class AccountKey {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
         AccountKey that = (AccountKey) o;
         return accountId == that.accountId;
     }
@@ -32,5 +36,10 @@ public class AccountKey {
     @Override
     public int hashCode() {
         return Objects.hash(accountId);
+    }
+
+    @Override
+    public int compareTo(AccountKey o) {
+        return Long.compare(this.accountId, o.accountId);
     }
 }
