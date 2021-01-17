@@ -1,4 +1,4 @@
-package com.devexperts.service.exception;
+package com.devexperts.exception;
 
 import com.devexperts.account.Account;
 

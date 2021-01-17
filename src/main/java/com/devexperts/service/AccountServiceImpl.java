@@ -4,7 +4,7 @@ import com.devexperts.account.Account;
 import com.devexperts.account.AccountKey;
 import com.devexperts.service.bean.TransferHelper;
 import com.devexperts.service.bean.TransferSideEnum;
-import com.devexperts.service.exception.InsufficientBalanceException;
+import com.devexperts.exception.InsufficientBalanceException;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
