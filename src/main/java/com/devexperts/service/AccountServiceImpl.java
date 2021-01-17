@@ -4,6 +4,7 @@ import com.devexperts.account.Account;
 import com.devexperts.account.AccountKey;
 import com.devexperts.service.bean.TransferHelper;
 import com.devexperts.service.bean.TransferSideEnum;
+import com.devexperts.service.exception.InsufficientBalanceException;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
@@ -40,6 +41,9 @@ public class AccountServiceImpl implements AccountService {
     @Override
     public void transfer(Account source, Account target, double amount) {
         // avoid deadlock
+        if (source.getBalance() < amount) {
+            throw new InsufficientBalanceException(source, amount);
+        }
         TransferHelper transferHelper = createTransferHelper(source, target);
         synchronized (transferHelper.getFirst()) {
             synchronized (transferHelper.getSecond()) {
