@@ -18,16 +18,9 @@ public class AccountController extends AbstractAccountController {
     private AccountService accountService;
 
     @RequestMapping(method = RequestMethod.POST)
-    public ResponseEntity<Void> transfer(@RequestParam(name = "source_id") long sourceId,
-                                         @RequestParam(name = "target_id") long targetId,
-                                         @RequestParam double amount) {
-        return null;
-    }
-
-    @RequestMapping(method = RequestMethod.GET)
-    public ResponseEntity<Void> get(@RequestParam(name = "source_id", defaultValue = "0") Long sourceId,
-                                    @RequestParam(name = "target_id", defaultValue = "0") Long targetId,
-                                    @RequestParam(defaultValue = "0") double amount) {
+    public ResponseEntity<Void> transfer(@RequestParam(name = "source_id", defaultValue = "0") long sourceId,
+                                         @RequestParam(name = "target_id", defaultValue = "0") long targetId,
+                                         @RequestParam(defaultValue = "0") double amount) {
 
         if (sourceId == 0 || targetId == 0 || amount == 0) {
             return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
