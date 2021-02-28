@@ -25,7 +25,7 @@ public class AccountServiceImpl implements AccountService {
     @Override
     public Account getAccount(long id) {
         return accounts.stream()
-                .filter(account -> account.getAccountKey() == AccountKey.valueOf(id))
+                .filter(account -> account.getAccountKey().equals(AccountKey.valueOf(id)))
                 .findAny()
                 .orElse(null);
     }

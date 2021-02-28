@@ -6,7 +6,7 @@ package com.devexperts.account;
  * <p>
  * NOTE: we suspect that later {@link #accountId} is not going to be uniquely identifying an account,
  * as we might add human-readable account representation and some clearing codes for partners.
- * */
+ */
 public class AccountKey {
     private final long accountId;
 
@@ -16,5 +16,21 @@ public class AccountKey {
 
     public static AccountKey valueOf(long accountId) {
         return new AccountKey(accountId);
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (!(obj instanceof AccountKey))
+            return false;
+        AccountKey accountKey = (AccountKey) obj;
+        return accountId == accountKey.accountId;
+    }
+
+    @Override
+    public int hashCode() {
+        return Long.hashCode(accountId);
     }
 }
