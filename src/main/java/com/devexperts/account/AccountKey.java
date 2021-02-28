@@ -7,7 +7,7 @@ package com.devexperts.account;
  * NOTE: we suspect that later {@link #accountId} is not going to be uniquely identifying an account,
  * as we might add human-readable account representation and some clearing codes for partners.
  */
-public class AccountKey {
+public class AccountKey implements Comparable<AccountKey> {
     private final long accountId;
 
     private AccountKey(long accountId) {
@@ -32,5 +32,10 @@ public class AccountKey {
     @Override
     public int hashCode() {
         return Long.hashCode(accountId);
+    }
+
+    @Override
+    public int compareTo(AccountKey accountKey) {
+        return Long.compare(accountId, accountKey.accountId);
     }
 }

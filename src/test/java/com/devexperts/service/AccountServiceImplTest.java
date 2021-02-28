@@ -9,12 +9,15 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
+
 class AccountServiceImplTest {
     private static final double DELTA = 0.00001;
 
     private AccountServiceImpl accountService = new AccountServiceImpl();
-    private Account account1;
-    private Account account2;
+    private volatile Account account1;
+    private volatile Account account2;
     private Account account3;
 
     @BeforeEach
@@ -61,6 +64,25 @@ class AccountServiceImplTest {
         Assertions.assertThrows(NotFoundAccountException.class, () -> {
             accountService.transfer(new Account(AccountKey.valueOf(8L), "NoName", "NoSurname", 1500.0), account3, 500);
         });
+    }
+
+    @org.junit.jupiter.api.Test
+    void transferMultiThread() throws InterruptedException {
+        int countTransfer = 5;
+        CountDownLatch countDownLatch = new CountDownLatch(countTransfer);
+        Runnable task = () -> {
+            try {
+                accountService.transfer(account1, account2, 100);
+            } finally {
+                countDownLatch.countDown();
+            }
+        };
+        for (int i = 0; i < countTransfer; i++) {
+            new Thread(task).start();
+        }
+        countDownLatch.await(5, TimeUnit.SECONDS);
+        Assert.assertEquals(0, account1.getBalance(), DELTA);
+        Assert.assertEquals(850, account2.getBalance(), DELTA);
     }
 
     @AfterEach

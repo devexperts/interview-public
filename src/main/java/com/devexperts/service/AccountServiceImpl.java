@@ -34,6 +34,22 @@ public class AccountServiceImpl implements AccountService {
 
     @Override
     public void transfer(Account source, Account target, double amount) {
+        if (source.getAccountKey().compareTo(target.getAccountKey()) >= 0) {
+            synchronized (source) {
+                synchronized (target) {
+                    doTransfer(source, target, amount);
+                }
+            }
+        } else {
+            synchronized (target) {
+                synchronized (source) {
+                    doTransfer(source, target, amount);
+                }
+            }
+        }
+    }
+
+    private void doTransfer(Account source, Account target, double amount) {
         if (!accounts.contains(source)) {
             throw new NotFoundAccountException(source);
         }
