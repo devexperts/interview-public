@@ -2,6 +2,8 @@ package com.devexperts.service;
 
 import com.devexperts.account.Account;
 import com.devexperts.account.AccountKey;
+import com.devexperts.service.exception.InvalidAmountException;
+import com.devexperts.service.exception.NotFoundAccountException;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -32,6 +34,16 @@ public class AccountServiceImpl implements AccountService {
 
     @Override
     public void transfer(Account source, Account target, double amount) {
-        //do nothing for now
+        if (!accounts.contains(source)) {
+            throw new NotFoundAccountException(source);
+        }
+        if (!accounts.contains(target)) {
+            throw new NotFoundAccountException(target);
+        }
+        if (source.getBalance() < amount) {
+            throw new InvalidAmountException();
+        }
+        source.setBalance(source.getBalance() - amount);
+        target.setBalance(target.getBalance() + amount);
     }
 }
