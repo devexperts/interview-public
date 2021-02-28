@@ -41,8 +41,10 @@ class AccountServiceImplTest {
 
     @org.junit.jupiter.api.Test
     void getAccountNotFromAccounts() {
-        Account account = accountService.getAccount(5L);
-        Assert.assertNull(account);
+        NotFoundAccountException exception = Assertions.assertThrows(NotFoundAccountException.class, () -> {
+            accountService.getAccount(5L);
+        });
+        Assert.assertEquals(exception.getMessage(), "Not found account with id = 5 at AccountService");
     }
 
     @org.junit.jupiter.api.Test

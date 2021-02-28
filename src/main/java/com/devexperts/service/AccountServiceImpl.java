@@ -29,7 +29,7 @@ public class AccountServiceImpl implements AccountService {
         return accounts.stream()
                 .filter(account -> account.getAccountKey().equals(AccountKey.valueOf(id)))
                 .findAny()
-                .orElse(null);
+                .orElseThrow(() -> new NotFoundAccountException(id));
     }
 
     @Override
