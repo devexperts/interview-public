@@ -1,6 +1,9 @@
 package com.devexperts.service;
 
 import com.devexperts.account.Account;
+import com.devexperts.account.AccountKey;
+
+import java.math.BigDecimal;
 
 public interface AccountService {
 
@@ -16,7 +19,7 @@ public interface AccountService {
      * @param account account entity to add or update
      * @throws IllegalArgumentException if account is already present
      * */
-    void createAccount(Account account);
+    void createAccount(AccountKey accountKey, Account account);
 
     /**
      * Get account from the cache
@@ -33,5 +36,5 @@ public interface AccountService {
      * @param target account to transfer money to
      * @param amount dollar amount to transfer
      * */
-    void transfer(Account source, Account target, double amount);
+    void transfer(Account source, Account target, BigDecimal amount);
 }
