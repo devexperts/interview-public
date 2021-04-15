@@ -1,0 +1,7 @@
+CREATE TABLE IF NOT EXISTS transfers(
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    source_id BIGINT NOT NULL,
+    target_id BIGINT NOT NULL,
+    amount BIGINT NOT NULL,
+    transfer_time TIMESTAMP NOT NULL,
+);
