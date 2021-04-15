@@ -10,6 +10,10 @@ package com.devexperts.account;
 public class AccountKey {
     private final long accountId;
 
+    public long getAccountId() {
+        return accountId;
+    }
+
     private AccountKey(long accountId) {
         this.accountId = accountId;
     }
