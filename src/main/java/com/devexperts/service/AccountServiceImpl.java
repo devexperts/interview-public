@@ -33,6 +33,23 @@ public class AccountServiceImpl implements AccountService {
 
     @Override
     public void transfer(Account source, Account target, double amount) {
-        //do nothing for now
+        if (amount < 0) {
+            throw new IllegalArgumentException("A negative amount is not allowed.");
+        }
+        if (source.getBalance() == null) {
+            throw new IllegalStateException(
+                    String.format("Transfer unavailable for source account with id: %d",
+                            source.getAccountKey().getAccountId()));
+        }
+        if (target.getBalance() == null) {
+            throw new IllegalStateException(
+                    String.format("Transfer unavailable for target account with id: %d",
+                            source.getAccountKey().getAccountId()));
+        }
+        if (source.getBalance() < amount) {
+            throw new IllegalStateException("Insufficient funds on the account.");
+        }
+        source.setBalance(source.getBalance() - amount);
+        target.setBalance(target.getBalance() + amount);
     }
 }
