@@ -4,7 +4,7 @@ public class Account {
     private final AccountKey accountKey;
     private final String firstName;
     private final String lastName;
-    private Double balance;
+    private volatile Double balance;
 
     public Account(AccountKey accountKey, String firstName, String lastName, Double balance) {
         this.accountKey = accountKey;
