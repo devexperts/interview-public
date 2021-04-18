@@ -9,6 +9,10 @@ final class TestUtils {
     }
 
     static Account createAccount(long id) {
-        return new Account(AccountKey.valueOf(id), "FirstName", "LastName", 0.0);
+        return createAccount(id, 0.0);
+    }
+
+    static Account createAccount(long id, double amount) {
+        return new Account(AccountKey.valueOf(id), "FirstName", "LastName", amount);
     }
 }
