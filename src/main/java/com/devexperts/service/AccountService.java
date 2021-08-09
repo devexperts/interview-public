@@ -2,6 +2,8 @@ package com.devexperts.service;
 
 import com.devexperts.account.Account;
 
+import java.math.BigDecimal;
+
 public interface AccountService {
 
     /**
@@ -33,5 +35,7 @@ public interface AccountService {
      * @param target account to transfer money to
      * @param amount dollar amount to transfer
      * */
-    void transfer(Account source, Account target, double amount);
+    void transfer(Account source, Account target, BigDecimal amount);
+
+    void validateTransferParams(Account source, Account target, BigDecimal amount);
 }
