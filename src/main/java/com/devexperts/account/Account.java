@@ -1,12 +1,14 @@
 package com.devexperts.account;
 
+import java.math.BigDecimal;
+
 public class Account {
     private final AccountKey accountKey;
     private final String firstName;
     private final String lastName;
-    private Double balance;
+    private BigDecimal balance;
 
-    public Account(AccountKey accountKey, String firstName, String lastName, Double balance) {
+    public Account(AccountKey accountKey, String firstName, String lastName, BigDecimal balance) {
         this.accountKey = accountKey;
         this.firstName = firstName;
         this.lastName = lastName;
@@ -25,11 +27,11 @@ public class Account {
         return lastName;
     }
 
-    public Double getBalance() {
+    public BigDecimal getBalance() {
         return balance;
     }
 
-    public void setBalance(Double balance) {
+    public void setBalance(BigDecimal balance) {
         this.balance = balance;
     }
 }
