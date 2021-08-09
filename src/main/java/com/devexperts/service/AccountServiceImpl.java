@@ -7,15 +7,15 @@ import com.devexperts.service.exceptions.InsufficientBalanceException;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
-import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 // Double is not recommended for financial operations.
 // Change to BigDecimal
 @Service
 public class AccountServiceImpl implements AccountService {
     // change List to Map to improve the performance of the getAccount() method
-    private final Map<AccountKey, Account> accounts = new HashMap<>();
+    private final Map<AccountKey, Account> accounts = new ConcurrentHashMap<>();
 
     @Override
     public void clear() {
@@ -40,12 +40,28 @@ public class AccountServiceImpl implements AccountService {
         }
         return null;
     }
+
+    // use the nested synchronized blocks to make possible simultaneous
+    // transactions between different accounts (ex. A -> B, C -> D)
     @Override
     public void transfer(Account source, Account target, BigDecimal amount) {
         validateTransferParams(source,target,amount);
 
-        source.setBalance(source.getBalance().subtract(amount));
-        target.setBalance(target.getBalance().add(amount));
+        // sort the accounts by id to avoid deadlock (ex. A -> B, B -> A)
+        Object firstLock, secondLock;
+        if (source.getAccountKey().getAccountId() > target.getAccountKey().getAccountId()) {
+            firstLock = source;
+            secondLock = target;
+        } else {
+            firstLock = target;
+            secondLock = source;
+        }
+        synchronized (firstLock) {
+            synchronized (secondLock) {
+                source.setBalance(source.getBalance().subtract(amount));
+                target.setBalance(target.getBalance().add(amount));
+            }
+        }
     }
 
     @Override
