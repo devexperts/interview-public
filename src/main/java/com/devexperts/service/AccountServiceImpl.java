@@ -4,12 +4,14 @@ import com.devexperts.account.Account;
 import com.devexperts.account.AccountKey;
 import org.springframework.stereotype.Service;
 
-import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.locks.ReentrantLock;
 
 @Service
 public class AccountServiceImpl implements AccountService {
 
-    private final HashMap<AccountKey, Account> accounts = new HashMap<>();
+    private final Map<AccountKey, Account> accounts = new ConcurrentHashMap<>();
 
     @Override
     public void clear() {
@@ -30,11 +32,16 @@ public class AccountServiceImpl implements AccountService {
         return accounts.getOrDefault(AccountKey.valueOf(id), null);
     }
 
+    // lock flag
+    private final ReentrantLock lock = new ReentrantLock();
+
     @Override
     public void transfer(Account source, Account target, double amount) {
-            if (amount < 0 || source == target) {
-                throw new IllegalArgumentException();
-            }
+        if (amount < 0 || source == target) {
+            throw new IllegalArgumentException();
+        }
+        lock.lock();
+        try {
             double sourceBalance = source.getBalance();
             double targetBalance = target.getBalance();
             if (sourceBalance < amount)
@@ -42,5 +49,8 @@ public class AccountServiceImpl implements AccountService {
 
             source.setBalance(sourceBalance - amount);
             target.setBalance(targetBalance + amount);
+        } finally {
+            lock.unlock();
+        }
     }
 }
