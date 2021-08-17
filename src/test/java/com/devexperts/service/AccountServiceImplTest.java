@@ -20,6 +20,48 @@ class AccountServiceImplTest {
     }
 
     @Test
+    void test_TransferTest() {
+        AccountKey keyOne = AccountKey.valueOf(1);
+        account = new Account(keyOne, "name1", "lastname1", 100.0);
+        service.createAccount(account);
+
+        AccountKey keyTwo = AccountKey.valueOf(2);
+        account = new Account(keyTwo, "name2", "lastname2", 100.0);
+        service.createAccount(account);
+
+        double balanceOne = service.getAccount(keyOne.getAccountId()).getBalance();
+        double balanceTwo = service.getAccount(keyTwo.getAccountId()).getBalance();
+        assertEquals(balanceOne, balanceTwo);
+
+        service.transfer(
+                service.getAccount(keyOne.getAccountId()),
+                service.getAccount(keyTwo.getAccountId()),
+                50.0);
+
+        balanceOne = service.getAccount(keyOne.getAccountId()).getBalance();
+        balanceTwo = service.getAccount(keyTwo.getAccountId()).getBalance();
+
+        assertNotEquals(balanceOne, balanceTwo);
+    }
+    @Test
+    void test_TransferTestTrouble() {
+        AccountKey keyOne = AccountKey.valueOf(1);
+        account = new Account(keyOne, "name1", "lastname1", -100.0);
+        service.createAccount(account);
+
+        AccountKey keyTwo = AccountKey.valueOf(2);
+        account = new Account(keyTwo, "name2", "lastname2", 100.0);
+        service.createAccount(account);
+
+        assertThrows(
+                IllegalArgumentException.class, () -> service.transfer(
+                        service.getAccount(keyOne.getAccountId()),
+                        service.getAccount(keyTwo.getAccountId()),
+                        50.0)
+        );
+    }
+
+    @Test
     void test_NewAccountCreation() {
         service.createAccount(account);
         Account actual = service.getAccount(account.getAccountKey().getAccountId());

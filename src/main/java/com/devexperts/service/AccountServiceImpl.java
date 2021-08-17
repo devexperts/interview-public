@@ -32,6 +32,15 @@ public class AccountServiceImpl implements AccountService {
 
     @Override
     public void transfer(Account source, Account target, double amount) {
-        //do nothing for now
+            if (amount < 0 || source == target) {
+                throw new IllegalArgumentException();
+            }
+            double sourceBalance = source.getBalance();
+            double targetBalance = target.getBalance();
+            if (sourceBalance < amount)
+                throw new IllegalArgumentException();
+
+            source.setBalance(sourceBalance - amount);
+            target.setBalance(targetBalance + amount);
     }
 }
