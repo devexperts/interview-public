@@ -45,7 +45,7 @@ public class AccountServiceImpl implements AccountService {
             double sourceBalance = source.getBalance();
             double targetBalance = target.getBalance();
             if (sourceBalance < amount)
-                throw new IllegalArgumentException();
+                throw new IllegalStateException();
 
             source.setBalance(sourceBalance - amount);
             target.setBalance(targetBalance + amount);
