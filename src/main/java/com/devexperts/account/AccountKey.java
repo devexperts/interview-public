@@ -20,6 +20,10 @@ public class AccountKey {
         return new AccountKey(accountId);
     }
 
+    public long getAccountId() {
+        return accountId;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
