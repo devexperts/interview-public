@@ -2,6 +2,8 @@ package com.devexperts.service;
 
 import com.devexperts.account.Account;
 import com.devexperts.account.AccountKey;
+import com.devexperts.exceptions.AccountDoesNotExistExceptions;
+import com.devexperts.exceptions.InsufficientBalanceException;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
@@ -37,19 +39,19 @@ public class AccountServiceImpl implements AccountService {
     @Override
     public void transfer(Account source, Account target, double amount) {
         if (source == null || target == null) {
-            throw new NullPointerException("no data entered");
+            throw new AccountDoesNotExistExceptions("no data entered");
         }
 
         if (!accounts.containsKey(source.getAccountKey())) {
-            throw new IllegalArgumentException("the sender's account does not exist");
+            throw new AccountDoesNotExistExceptions("the sender's account does not exist");
         }
 
         if (!accounts.containsKey(target.getAccountKey())) {
-            throw new IllegalArgumentException("recipient account does not exist");
+            throw new AccountDoesNotExistExceptions("recipient account does not exist");
         }
 
         if (amount > source.getBalance()) {
-            throw new IllegalArgumentException("Balance is low");
+            throw new InsufficientBalanceException("Balance is low");
         }
 
         Object lock1 = source.getAccountKey().getAccountId() < target.getAccountKey().getAccountId() ? source : target;
