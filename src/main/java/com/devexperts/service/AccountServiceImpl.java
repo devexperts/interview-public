@@ -36,6 +36,23 @@ public class AccountServiceImpl implements AccountService {
 
     @Override
     public void transfer(Account source, Account target, double amount) {
-        //do nothing for now
+        if(source == null || target == null){
+            throw new NullPointerException("no data entered");
+        }
+
+        if(!accounts.containsKey(source.getAccountKey())){
+            throw new IllegalArgumentException("the sender's account does not exist");
+        }
+
+        if(!accounts.containsKey(target.getAccountKey())){
+            throw new IllegalArgumentException("recipient account does not exist");
+        }
+
+        if(amount > source.getBalance()){
+            throw new IllegalArgumentException("Balance is low");
+        }
+
+        source.setBalance(source.getBalance() - amount);
+        target.setBalance(target.getBalance() + amount);
     }
 }
