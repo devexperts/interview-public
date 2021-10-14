@@ -46,7 +46,7 @@ public class AccountServiceImpl implements AccountService {
             double targetBalance = target.getBalance();
 
             if (sourceBalance < amount)
-                throw new IllegalArgumentException("Source balance is insufficient.");
+                throw new IllegalStateException("Source balance is insufficient.");
 
             source.setBalance(sourceBalance - amount);
             target.setBalance(targetBalance + amount);
