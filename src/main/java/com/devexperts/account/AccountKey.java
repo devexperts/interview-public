@@ -10,11 +10,26 @@ package com.devexperts.account;
 public class AccountKey {
     private final long accountId;
 
-    private AccountKey(long accountId) {
+    protected AccountKey(long accountId) {
         this.accountId = accountId;
     }
 
     public static AccountKey valueOf(long accountId) {
         return new AccountKey(accountId);
     }
+
+    @Override
+    public boolean equals(Object anotherKey) {
+        if (anotherKey instanceof AccountKey) {
+            return this.accountId == ((AccountKey) anotherKey).accountId;
+        } else
+        {
+            return false;
+        }
+    }
+
+    public int compare(AccountKey anotherKey) {
+        return Long.compare(this.accountId, anotherKey.accountId);
+    }
+
 }
