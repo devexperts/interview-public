@@ -1,6 +1,9 @@
 package com.devexperts.service;
 
 import com.devexperts.account.Account;
+import com.devexperts.service.exceptions.IncorrectAmountOfTransfer;
+import com.devexperts.service.exceptions.IncorrectTargetOfTransfer;
+import com.devexperts.service.exceptions.InsufficientFundsException;
 
 public interface AccountService {
 
@@ -32,6 +35,10 @@ public interface AccountService {
      * @param source account to transfer money from
      * @param target account to transfer money to
      * @param amount dollar amount to transfer
+     * @throws IncorrectTargetOfTransfer if no such target in service or source and target are equals
+     * @throws IncorrectAmountOfTransfer if amount of transfer lesser than 0
+     * @throws InsufficientFundsException if source don't have enough money
      * */
-    void transfer(Account source, Account target, double amount);
+    void transfer(Account source, Account target, double amount)
+            throws IncorrectTargetOfTransfer, IncorrectAmountOfTransfer, InsufficientFundsException;
 }
