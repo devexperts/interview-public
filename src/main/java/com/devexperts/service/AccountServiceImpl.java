@@ -3,10 +3,9 @@ package com.devexperts.service;
 import com.devexperts.account.Account;
 import com.devexperts.account.AccountKey;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 @Service
@@ -39,8 +38,10 @@ public class AccountServiceImpl implements AccountService {
         return accounts.get(AccountKey.valueOf(id));
     }
 
+    @Transactional
     @Override
     public void transfer(Account source, Account target, double amount) {
-        //do nothing for now
+        source.setBalance(source.getBalance() - amount);
+        target.setBalance(target.getBalance() + amount);
     }
 }
