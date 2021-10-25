@@ -12,7 +12,7 @@ import java.util.Map;
 public class AccountServiceImpl implements AccountService {
 
     //private final List<Account> accounts = new ArrayList<>();
-    private Map<AccountKey, Account> accounts = new HashMap<>();
+    private final Map<AccountKey, Account> accounts = new HashMap<>();
 
     @Override
     public void clear() {
