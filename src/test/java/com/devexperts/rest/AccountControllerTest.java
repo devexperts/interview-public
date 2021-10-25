@@ -2,6 +2,9 @@ package com.devexperts.rest;
 
 import com.devexperts.account.Account;
 import com.devexperts.account.AccountKey;
+import com.devexperts.exceptions.AccountNotFoundException;
+import com.devexperts.exceptions.AmountIsInvalidException;
+import com.devexperts.exceptions.InsufficientAccountBalanceException;
 import com.devexperts.service.AccountService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -17,6 +20,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.doThrow;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -45,10 +49,6 @@ class AccountControllerTest {
      * */
     @Test
     void transfer_0K() throws Exception {
-        doReturn(new Account(AccountKey.valueOf(1L),"Bill", "Gates", 222.00))
-                .when(accountService).getAccount(1L);
-        doReturn(new Account(AccountKey.valueOf(2L),"Steve", "Jobs", 133.00))
-                .when(accountService).getAccount(2L);
         MockHttpServletResponse response = mvc.perform(
                 post("/api/operations/transfer")
                         .param("sourceId", String.valueOf(1l))
@@ -64,6 +64,8 @@ class AccountControllerTest {
      * */
     @Test
     void transfer_NOT_FOUND() throws Exception {
+        doThrow(AccountNotFoundException.class).when(accountService)
+                .transferWithChecks(1L, 2L, 20.1);
         MockHttpServletResponse response = mvc.perform(
                 post("/api/operations/transfer")
                         .param("sourceId", String.valueOf(1l))
@@ -79,6 +81,8 @@ class AccountControllerTest {
      * */
     @Test
     void transfer_BAD_REQUEST() throws Exception {
+        doThrow(AmountIsInvalidException.class).when(accountService)
+                .transferWithChecks(1L, 2L, -1.0);
         MockHttpServletResponse response = mvc.perform(
                 post("/api/operations/transfer")
                         .param("sourceId", String.valueOf(1l))
@@ -108,10 +112,8 @@ class AccountControllerTest {
      * */
     @Test
     void transfer_INTERNAL_SERVER_ERROR() throws Exception {
-        doReturn(new Account(AccountKey.valueOf(1L),"Bill", "Gates", 222.00))
-                .when(accountService).getAccount(1L);
-        doReturn(new Account(AccountKey.valueOf(2L),"Steve", "Jobs", 133.00))
-                .when(accountService).getAccount(2L);
+        doThrow(InsufficientAccountBalanceException.class).when(accountService)
+                .transferWithChecks(1L, 2L, 1000.0);
         MockHttpServletResponse response = mvc.perform(
                 post("/api/operations/transfer")
                         .param("sourceId", String.valueOf(1l))
