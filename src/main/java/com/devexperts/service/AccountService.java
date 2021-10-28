@@ -36,7 +36,7 @@ public interface AccountService {
      * @param target account to transfer money to
      * @param amount dollar amount to transfer
      * */
-    void transfer(Account source, Account target, double amount);
+    //void transfer(Account source, Account target, double amount);
 
     void transferWithChecks(long sourceId, long targetId, double amount)
             throws AccountNotFoundException, InsufficientAccountBalanceException, AmountIsInvalidException;

@@ -14,20 +14,8 @@ import static org.mockito.Mockito.doReturn;
 
 @SpringBootTest
 class AccountServiceImplTest {
-
     @Autowired
     AccountService accountService;
-
-    @Test
-    void transfer() {
-        Account ac1 = new Account(AccountKey.valueOf(101L), "Abdusame", "Ochil-zoda", 100.00);
-        Account ac2 = new Account(AccountKey.valueOf(201L), "Alex", "Ivanov", 33.00);
-        accountService.transfer(ac1, ac2, 19.22);
-
-        assertEquals(100.00 - 19.22, ac1.getBalance());
-        assertEquals(33.00 + 19.22, ac2.getBalance());
-        accountService.clear();
-    }
 
     @Test
     void transfer_OK() throws AccountNotFoundException, AmountIsInvalidException, InsufficientAccountBalanceException {
